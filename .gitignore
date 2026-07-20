@@ -1,0 +1,30 @@
+# Java / Maven
+target/
+*.class
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+
+# Node / web
+web/node_modules/
+web/dist/
+web/.vite/
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Claude Code local settings (machine-specific)
+.claude/settings.local.json

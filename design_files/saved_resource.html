@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<!-- saved from url=(0253)https://3cbacff4-43b2-4352-81b4-ad2769085e95.frame.claudeusercontent.com/_f/1784439625-012b/?__frame_t=AX4Yc5PlI3y_usrqd4DLA7qZ.bbd5af5f-dff2-4176-9e87-81d074752a3c.2e338b45-00e3-4ddb-bc02-29fa85fac76c.1784443228&__frame_v=manifest.2c2ef77816eb7ea0.json -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><!-- frame-runtime --><!--<base href="/_f/1784439625-012b/">--><base href="."><script>window.__FRAME_PREAMBLE={"capabilities":{"downloads":"downloads.BABDwU1K.js","mcp":"mcp.hoz5jxDa.js","permissions":"permissions.kVGugkJh.js","self":"self.D3u1zjZe.js"},"transforms":"_transforms.DYk1Ltlh.js","comments":"_comments.Dp6RDy7J.js","translate":"_translate.DHzvAjkZ.js"}</script><script>(function(){"use strict";const de="modulepreload",fe=function(e){return"/"+e},pe={},J=function(t,r,u){let o=Promise.resolve();function i(d){const c=new Event("vite:preloadError",{cancelable:!0});if(c.payload=d,window.dispatchEvent(c),!c.defaultPrevented)throw d}return o.then(d=>{for(const c of d||[])c.status==="rejected"&&i(c.reason);return t().catch(i)})},V=["light","dark","system"];function Y(e){if(e===null||typeof e!="object")return!1;const t=e.__frame_init;return t!==null&&typeof t=="object"}function Q(e){return e!==null&&typeof e=="object"&&e.__frame_size_poke===!0}function X(e){if(e===null||typeof e!="object")return!1;const t=e.__frame_theme;if(t===null||typeof t!="object")return!1;const r=t.theme;return typeof r=="string"&&V.includes(r)}function Z(e){try{typeof reportError=="function"?reportError(e):setTimeout(()=>{throw e},0)}catch{}}function D(e){if(window===top||e.type==="auxclick"&&e.button!==1)return;const t=e.composedPath?e.composedPath():[e.target];let r=null;for(let d=0;d<t.length;d++){const c=t[d];if(c&&c.matches&&c.matches("a[href],area[href]")){r=c;break}}if(!r&&e.target&&e.target.closest&&(r=e.target.closest("a[href],area[href]")),!r)return;const u=r.getAttribute("href");if(!u)return;let o,i;try{o=new URL(u,document.baseURI),i=new URL(document.baseURI).origin}catch{return}(o.protocol==="http:"||o.protocol==="https:")&&o.origin!==i&&(e.preventDefault(),parent.postMessage({__frame_nav:!0,url:o.href},"*"))}const U={};function T(e){if(window===top)return;const t=Date.now();t-(U[e]||0)<500||(U[e]=t,parent.postMessage({__frame_engaged:!0,kind:e},"*"))}const ee=2e3,F=["wheel","touchstart","touchmove","keydown","pointerdown"];let H=0;function te(e){e.isTrusted&&(H=Date.now())}function ne(){addEventListener("click",D,!0),addEventListener("auxclick",D,!0)}function re(){for(let e=0;e<F.length;e++)addEventListener(F[e],te,{capture:!0,passive:!0});addEventListener("scroll",e=>{e.isTrusted&&Date.now()-H<ee&&T("scroll")},{capture:!0,passive:!0}),addEventListener("pointermove",e=>{e.isTrusted&&T("pointer")},{capture:!0,passive:!0}),addEventListener("click",e=>{e.isTrusted&&T("click")},{capture:!0,passive:!0})}function oe(e,t,r){const u=[...t.values()].filter(o=>o.targets.some(i=>i.startsWith(e+".")));return{wrap(o,i){const d=`${e}.${o}`,c=u.filter(s=>s.targets.includes(d));return c.length===0?(...s)=>{try{return i(...s)}catch(p){return Promise.reject(p)}}:(...s)=>{let p=s;for(const a of c){const l=a.module.parameters;if(l)try{p=l(p)}catch{return Promise.reject({code:"transform_error",id:a.id,scope:e,message:"parameters transform failed"})}}let g;try{g=i(...p)}catch(a){g=Promise.reject(a)}return g.then(a=>{for(let l=c.length-1;l>=0;l--){const m=c[l],f=m.module.returns;if(f)try{a=f(a)}catch{return r({id:m.id,scope:e,leg:"returns"}),a}}return a},a=>{for(let l=c.length-1;l>=0;l--){const m=c[l],f=m.module.throws;if(f)try{a=f(a)}catch{return r({id:m.id,scope:e,leg:"throws"}),Promise.reject(a)}}return Promise.reject(a)})}}}}function se(e,t,r,u=()=>{}){const o=new Set(e.changes??[]),i=new Map;for(const d of o){const c=t[d];c&&i.set(d,c)}return{contract:e.contract,changes:o,flags:new Set(e.flags??[]),capabilities:e.capabilities??{},capBudgets:e.capBudgets??{},transforms:i,shellOrigin:r.shellOrigin,mount:r.mount,pipe:d=>oe(d,i,u)}}(function(){const e=Object.defineProperty,t=globalThis,r=["RTCPeerConnection","webkitRTCPeerConnection","RTCDataChannel","RTCIceCandidate","RTCSessionDescription","RTCRtpSender","RTCRtpReceiver"];let u=0;for(let o=0;o<r.length;o++){const i=r[o];try{e(t,i,{value:void 0,writable:!1,configurable:!1})}catch{try{delete t[i]}catch{}try{e(t,i,{value:void 0,writable:!1,configurable:!0})}catch{}}typeof t[i]=="function"&&u++}if(u&&window!==top)try{parent.postMessage({__frame_rtc_lockdown_failed:u},"*")}catch{}})();const ie=1e4,ae=Object.freeze([...window.__FRAME_PREAMBLE?.origins??["https://claude.ai","https://preview.claude.ai"]]);function ce(e){for(const t of ae)if(t.endsWith(":*"))try{const r=new URL(e);if(`${r.protocol}//${r.hostname}:*`===t)return!0}catch{}else if(e===t)return!0;return!1}const j=Object.freeze({...window.__FRAME_PREAMBLE?.capabilities}),k=window.__FRAME_PREAMBLE?.transforms,C=window.__FRAME_PREAMBLE?.comments,N=window.__FRAME_PREAMBLE?.translate,O=/^[\w.-]+\.js$/,le=/^[a-z][a-z0-9_-]{0,63}$/;let W=null,P=null;function I(e,t,r){try{Object.defineProperty(e,t,{value:r,writable:!1,configurable:!1,enumerable:!0})}catch{try{Object.defineProperty(e,t,{value:r,writable:!1,configurable:!0,enumerable:!0})}catch{}}}let $=!1;function x(e){const t=document.documentElement;e==="light"||e==="dark"?(t.dataset.theme=e,t.style.colorScheme=e,$=!0):$&&(delete t.dataset.theme,t.style.colorScheme="",$=!1)}const M={mcp:{watchTool:{handlerArg:3}}},S=new Map;function ue(e,t){const r=S.get(e);if(!r)return;Object.assign(r.impl,t),r.impl.__settled=()=>Promise.reject({code:"capability_removed",message:`${e}: method not in this runtime`});const u=r.queue;r.queue=[];for(const o of u){const i=t[o.method];if(i)if(M[e]?.[o.method])try{o.resolve(i(...o.args))}catch{A(o,M[e][o.method].handlerArg,{code:"transform_error",message:`${e}.${o.method} rejected its arguments`})}else i(...o.args).then(o.resolve,o.reject);else{const d={code:"capability_removed",message:`${e}.${o.method} is not in this runtime`},c=M[e]?.[o.method];if(c){A(o,c.handlerArg,d);continue}o.reject(d)}}}function q(e,t){const r=S.get(e);if(!r)return;r.impl.__settled=()=>Promise.reject(t);const u=r.queue;r.queue=[];for(const o of u){const i=M[e]?.[o.method];if(i){A(o,i.handlerArg,t);continue}o.reject(t)}}function A(e,t,r){if(e.syncState?.dead)return;const u=e.args[t];typeof u=="function"&&queueMicrotask(()=>{if(!e.syncState?.dead)try{u({type:"error",error:r})}catch(o){Z(o)}})}const z=Object.getOwnPropertyDescriptor(window,"claude");if(window!==top&&!(z&&z.writable===!1)){ne(),re();const e=z?.value??{};I(window,"claude",e);const t=s=>{const p={impl:Object.create(null),queue:[]};S.set(s,p);const g=new Proxy(p.impl,{get:(a,l)=>{if(typeof l!="string"||l==="then"||l==="toJSON"||l==="valueOf")return;if(l==="toString")return Object.prototype.toString;const m=M[s]?.[l];return m?(...f)=>{if(typeof f[m.handlerArg]!="function")throw new TypeError(`${s}.${l} requires a handler function`);const b=a[l];if(b)return b(...f);if(a.__settled){const w={dead:!1},v={args:[...f],syncState:w};return a.__settled().catch(R=>A(v,m.handlerArg,R)),()=>{w.dead=!0}}let h=null;const _={dead:!1};return p.queue.push({method:l,args:f,resolve:w=>{h=typeof w=="function"?w:null,_.dead&&h?.()},reject:()=>{},syncState:_}),()=>{_.dead=!0,h?.()}}:(...f)=>{const b=a[l]??a.__settled;return b?b(...f):new Promise((h,_)=>{p.queue.push({method:l,args:f,resolve:h,reject:_})})}},set:()=>!1});I(e,s,g)};for(const s of Object.keys(j)){if(e[s]!==void 0){I(e,s,e[s]);continue}t(s)}let r=null,u=null,o=0;const i=s=>{s.source!==parent||!ce(s.origin)||Y(s.data)&&(r=s.data.__frame_init,P=s.origin,removeEventListener("message",i),clearTimeout(o),u?.())};addEventListener("message",i),parent.postMessage({__frame_connect:!0},"*");const d=new Promise(s=>{u=s,o=setTimeout(()=>{removeEventListener("message",i),s()},ie)}),c=document.readyState==="loading"?new Promise(s=>document.addEventListener("DOMContentLoaded",()=>s(),{once:!0})):Promise.resolve();d.then(async()=>{if(!r||!P){for(const n of S.keys())q(n,{code:"not_granted",message:"frame initialization did not arrive - capability unavailable"});return}x(r.theme);const s=P;let p=!1,g=!1;addEventListener("message",n=>{if(n.source!==parent||n.origin!==s)return;X(n.data)&&x(n.data.__frame_theme.theme);const y=n.data?.__fc_mode;y&&typeof y=="object"&&!p&&C&&O.test(C)&&(p=!0,a(C).then(B=>B.install?.(s,y.on===!0)).catch(()=>{}));const E=n.data?.__ft_cmd;E&&typeof E=="object"&&!g&&N&&O.test(N)&&(g=!0,a(N).then(B=>B.install?.(s,E)).catch(()=>{}))});const a=n=>J(()=>import("/_runtime/"+n),void 0),l=Object.keys(r.capabilities??{});for(const n of l)Object.hasOwn(j,n)||le.test(n)&&e[n]===void 0&&(t(n),q(n,{code:"capability_disabled",message:"capability not in this runtime generation"}));const m=l.filter(n=>Object.hasOwn(j,n)).map(n=>[n,j[n]]).filter(n=>typeof n[1]=="string"&&O.test(n[1])),[f,...b]=await Promise.allSettled([k&&O.test(k)?a(k):Promise.resolve({}),...m.map(([,n])=>a(n))]),h=P;W=se(r,f.status==="fulfilled"&&f.value?.TRANSFORMS||{},{shellOrigin:h,mount:ue},n=>parent.postMessage({__frame_cap_telemetry:n},h));const _=n=>parent.postMessage({__frame_cap_telemetry:{kind:"cap-load-error",cap:n}},h),w=W;b.forEach((n,y)=>{const E=m[y][0];if(n.status!=="fulfilled"){_(E);return}try{n.value?.install?.(w)}catch{_(E)}});for(const[n,y]of S)y.queue.length===0&&Object.keys(y.impl).length>0||q(n,{code:l.includes(n)?"capability_disabled":"not_granted",message:"capability not available in this session"});await c,parent.postMessage({__frame_ready:!0},P);let v=-1,R=0;const K=()=>{R=0;const n=Math.max(document.documentElement.scrollHeight,document.body?document.body.scrollHeight:0);n!==v&&(v=n,parent.postMessage({__frame_size:!0,h:n},h))},L=()=>{R||(R=setTimeout(K,200))},G=new ResizeObserver(L);G.observe(document.documentElement),document.body&&G.observe(document.body),document.addEventListener("load",L,!0),document.fonts?.ready.then(L,()=>{}),addEventListener("beforeprint",()=>{v=-1,K()}),L(),addEventListener("message",n=>{n.source!==parent||n.origin!==h||Q(n.data)&&(v=-1,L())})})}})();</script><!-- /frame-runtime --><meta name="viewport" content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}</style></head><body>
+<title>Hostel One — System Reference</title>
+<style>
+  :root {
+    --paper: #eef1ec;
+    --paper-raised: #ffffff;
+    --ink: #141a17;
+    --ink-soft: #545f58;
+    --line: #ccd4cd;
+    --line-strong: #9aa79f;
+    --lessor: #2f7a8c;
+    --lessor-soft: #e2edef;
+    --renter: #a8672a;
+    --renter-soft: #f2e7d7;
+    --good: #3f7d4c;
+    --good-soft: #e2ede3;
+    --warn: #9c7e1f;
+    --warn-soft: #f1ead4;
+    --bad: #a5433a;
+    --bad-soft: #f2e0dd;
+    --mono: ui-monospace, "Cascadia Code", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --shadow: 0 1px 2px rgba(20,26,23,0.05), 0 10px 26px -16px rgba(20,26,23,0.18);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #0c1210;
+      --paper-raised: #121a17;
+      --ink: #e7ece8;
+      --ink-soft: #9aa8a0;
+      --line: #253029;
+      --line-strong: #3c4a41;
+      --lessor: #6ab8c9;
+      --lessor-soft: rgba(106,184,201,0.12);
+      --renter: #dd9c4f;
+      --renter-soft: rgba(221,156,79,0.12);
+      --good: #74b382;
+      --good-soft: rgba(116,179,130,0.13);
+      --warn: #d8bd5c;
+      --warn-soft: rgba(216,189,92,0.13);
+      --bad: #d47b70;
+      --bad-soft: rgba(212,123,112,0.13);
+      --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 14px 30px -16px rgba(0,0,0,0.6);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #0c1210; --paper-raised: #121a17; --ink: #e7ece8; --ink-soft: #9aa8a0;
+    --line: #253029; --line-strong: #3c4a41; --lessor: #6ab8c9; --lessor-soft: rgba(106,184,201,0.12);
+    --renter: #dd9c4f; --renter-soft: rgba(221,156,79,0.12); --good: #74b382; --good-soft: rgba(116,179,130,0.13);
+    --warn: #d8bd5c; --warn-soft: rgba(216,189,92,0.13); --bad: #d47b70; --bad-soft: rgba(212,123,112,0.13);
+    --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 14px 30px -16px rgba(0,0,0,0.6);
+  }
+  :root[data-theme="light"] {
+    --paper: #eef1ec; --paper-raised: #ffffff; --ink: #141a17; --ink-soft: #545f58;
+    --line: #ccd4cd; --line-strong: #9aa79f; --lessor: #2f7a8c; --lessor-soft: #e2edef;
+    --renter: #a8672a; --renter-soft: #f2e7d7; --good: #3f7d4c; --good-soft: #e2ede3;
+    --warn: #9c7e1f; --warn-soft: #f1ead4; --bad: #a5433a; --bad-soft: #f2e0dd;
+    --shadow: 0 1px 2px rgba(20,26,23,0.05), 0 10px 26px -16px rgba(20,26,23,0.18);
+  }
+
+  * { box-sizing: border-box; }
+  html { color-scheme: light dark; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: var(--lessor); color: var(--paper-raised); }
+
+  h1, h2, h3 { font-family: var(--sans); font-weight: 800; letter-spacing: -0.02em; text-wrap: balance; margin: 0; }
+  p { margin: 0; }
+  a { color: inherit; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-soft);
+  }
+
+  /* ---------- topbar ---------- */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    padding: 0.65rem 1.5rem;
+    background: color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .brand { display: flex; align-items: center; gap: 0.6rem; font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.04em; white-space: nowrap; }
+  .brand .mark {
+    display: inline-grid; place-items: center;
+    width: 1.6rem; height: 1.6rem;
+    border: 1px solid var(--ink); font-weight: 800; font-size: 0.72rem;
+  }
+  .sheet-nav { display: flex; flex-wrap: wrap; gap: 0.3rem; justify-content: flex-end; }
+  .sheet-nav a {
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.04em;
+    padding: 0.28rem 0.5rem; border: 1px solid var(--line); text-decoration: none; color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  .sheet-nav a:hover { border-color: var(--line-strong); color: var(--ink); }
+  .legend { display: flex; gap: 0.9rem; align-items: center; font-family: var(--mono); font-size: 0.68rem; color: var(--ink-soft); }
+  .legend .dot { display: inline-block; width: 0.5rem; height: 0.5rem; margin-right: 0.35rem; border-radius: 50%; vertical-align: middle; }
+
+  main { max-width: 68rem; margin: 0 auto; padding: 0 1.5rem; }
+
+  /* ---------- cover ---------- */
+  .cover {
+    display: grid; grid-template-columns: 1.3fr 1fr; gap: 3rem;
+    padding: 4.5rem 0 3.5rem;
+    border-bottom: 1px solid var(--line);
+    align-items: end;
+  }
+  .cover h1 { font-size: clamp(2.4rem, 5.4vw, 4rem); }
+  .cover .sub { margin-top: 1rem; max-width: 46ch; color: var(--ink-soft); font-size: 1.02rem; }
+  .cover .tag {
+    margin-top: 1.75rem; display: inline-flex; gap: 0.5rem; flex-wrap: wrap;
+  }
+  .chip {
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.04em; text-transform: uppercase;
+    padding: 0.3rem 0.55rem; border: 1px solid var(--line-strong); color: var(--ink-soft);
+  }
+  .factbox {
+    border: 1px solid var(--line-strong); background: var(--paper-raised); box-shadow: var(--shadow);
+    padding: 1.25rem 1.4rem;
+  }
+  .factbox .row { display: flex; justify-content: space-between; gap: 1rem; padding: 0.55rem 0; border-bottom: 1px solid var(--line); font-size: 0.86rem; }
+  .factbox .row:last-child { border-bottom: none; }
+  .factbox .row span:first-child { font-family: var(--mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); padding-top: 0.15rem; }
+  .factbox .row span:last-child { text-align: right; max-width: 62%; }
+
+  /* ---------- sheet ---------- */
+  .sheet { padding: 3.4rem 0; border-bottom: 1px solid var(--line); scroll-margin-top: 4.2rem; }
+  .sheet:last-of-type { border-bottom: none; }
+  .sheet-head { display: flex; align-items: baseline; gap: 0.9rem; margin-bottom: 0.4rem; }
+  .sheet-head .code { font-family: var(--mono); font-size: 0.78rem; color: var(--ink-soft); }
+  .sheet h2 { font-size: clamp(1.4rem, 2.6vw, 1.9rem); }
+  .dek { color: var(--ink-soft); max-width: 66ch; margin-top: 0.6rem; font-size: 0.96rem; }
+  .sheet-body { margin-top: 2rem; }
+
+  /* ---------- architecture diagram ---------- */
+  .arch { display: flex; flex-direction: column; align-items: center; gap: 0; max-width: 640px; margin: 0 auto; }
+  .arch-box {
+    width: 100%; border: 1px solid var(--line-strong); background: var(--paper-raised); box-shadow: var(--shadow);
+    padding: 0.9rem 1.1rem; text-align: center;
+  }
+  .arch-box .name { font-weight: 700; font-size: 0.98rem; }
+  .arch-box .meta { font-family: var(--mono); font-size: 0.7rem; color: var(--ink-soft); margin-top: 0.3rem; }
+  .arch-box.lessor { border-top: 3px solid var(--lessor); }
+  .arch-box.renter { border-top: 3px solid var(--renter); }
+  .arch-box.db { border-style: dashed; }
+  .arch-two { display: grid; grid-template-columns: 1fr 1fr; gap: 1.6rem; width: 100%; }
+  .connector { display: flex; flex-direction: column; align-items: center; padding: 0.5rem 0; }
+  .connector .line { width: 1px; height: 1.6rem; background: var(--line-strong); }
+  .connector .label { font-family: var(--mono); font-size: 0.65rem; color: var(--ink-soft); text-align: center; margin: 0.15rem 0; }
+  .connector-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 1.6rem; width: 100%; }
+  .connector-pair .connector { padding: 0.35rem 0; }
+
+  /* ---------- generic layout helpers ---------- */
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  .panel { border: 1px solid var(--line); background: var(--paper-raised); padding: 1.3rem 1.4rem; }
+  .panel h3 { font-size: 0.95rem; margin-bottom: 0.9rem; display: flex; align-items: center; gap: 0.5rem; }
+  .panel h3 .swatch { width: 0.6rem; height: 0.6rem; border-radius: 50%; display: inline-block; }
+  .panel ul { margin: 0; padding: 0; list-style: none; }
+  .panel li { display: flex; justify-content: space-between; gap: 0.8rem; padding: 0.4rem 0; border-bottom: 1px dotted var(--line); font-size: 0.86rem; }
+  .panel li:last-child { border-bottom: none; }
+  .panel li .v { font-family: var(--mono); font-size: 0.76rem; color: var(--ink-soft); text-align: right; }
+
+  /* ---------- tree ---------- */
+  .tree { font-size: 0.92rem; }
+  .tree .lvl { border-left: 1px solid var(--line-strong); margin-left: 0.55rem; padding-left: 1rem; }
+  .tree .node { padding: 0.4rem 0; position: relative; }
+  .tree .node::before { content: ""; position: absolute; left: -1rem; top: 1.1rem; width: 0.8rem; height: 1px; background: var(--line-strong); }
+  .tree .node .t { font-weight: 700; }
+  .tree .node .d { color: var(--ink-soft); font-size: 0.82rem; margin-left: 0.5rem; }
+  .tree > .node { padding-left: 0; }
+  .tree > .node::before { display: none; }
+
+  /* ---------- tables ---------- */
+  .twrap { overflow-x: auto; border: 1px solid var(--line); background: var(--paper-raised); }
+  table { border-collapse: collapse; width: 100%; font-size: 0.86rem; min-width: 560px; }
+  thead th {
+    text-align: left; font-family: var(--mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--ink-soft); padding: 0.6rem 0.9rem; border-bottom: 1px solid var(--line-strong); white-space: nowrap;
+  }
+  tbody td { padding: 0.55rem 0.9rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: color-mix(in srgb, var(--ink) 3%, transparent); }
+  td.path { font-family: var(--mono); font-size: 0.8rem; white-space: nowrap; }
+  .group-row td { font-family: var(--mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-soft); background: color-mix(in srgb, var(--ink) 3%, transparent); padding-top: 0.5rem; padding-bottom: 0.5rem; }
+
+  .m {
+    display: inline-block; font-family: var(--mono); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.02em;
+    padding: 0.14rem 0.4rem; border-radius: 2px; min-width: 3.8rem; text-align: center;
+  }
+  .m-get { background: var(--lessor-soft); color: var(--lessor); }
+  .m-post { background: var(--good-soft); color: var(--good); }
+  .m-put, .m-patch { background: var(--warn-soft); color: var(--warn); }
+  .m-delete { background: var(--bad-soft); color: var(--bad); }
+
+  /* ---------- flows ---------- */
+  .flow-block { margin-bottom: 1.6rem; }
+  .flow-block:last-child { margin-bottom: 0; }
+  .flow-title { font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); margin-bottom: 0.6rem; }
+  .flow { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
+  .flow .arrow { color: var(--line-strong); font-size: 0.9rem; }
+  .pill {
+    font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.03em; text-transform: uppercase;
+    padding: 0.28rem 0.6rem; border: 1px solid var(--line-strong); border-radius: 2px;
+  }
+  .pill.good { border-color: var(--good); color: var(--good); }
+  .pill.warn { border-color: var(--warn); color: var(--warn); }
+  .pill.bad { border-color: var(--bad); color: var(--bad); }
+  .pill.neutral { color: var(--ink-soft); }
+  .tagset { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .tag { font-family: var(--mono); font-size: 0.68rem; padding: 0.24rem 0.5rem; background: color-mix(in srgb, var(--ink) 5%, transparent); color: var(--ink-soft); }
+
+  /* ---------- routes ---------- */
+  .route-col { border-top: 3px solid; padding-top: 0.2rem; }
+  .route-col.renter { border-color: var(--renter); }
+  .route-col.lessor { border-color: var(--lessor); }
+  .route-col h3 { margin: 1rem 0 0.9rem; }
+  .route-list { list-style: none; margin: 0; padding: 0; }
+  .route-list li { display: flex; flex-direction: column; gap: 0.15rem; padding: 0.55rem 0; border-bottom: 1px dotted var(--line); }
+  .route-list li:last-child { border-bottom: none; }
+  .route-list .path { font-family: var(--mono); font-size: 0.82rem; }
+  .route-list .comp { font-size: 0.78rem; color: var(--ink-soft); }
+  .route-list .badge { font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); border: 1px solid var(--line); padding: 0.05rem 0.35rem; align-self: flex-start; margin-top: 0.15rem; }
+
+  /* ---------- notes / callouts ---------- */
+  .note { border-left: 3px solid var(--line-strong); padding: 0.7rem 1rem; font-size: 0.86rem; color: var(--ink-soft); background: color-mix(in srgb, var(--ink) 3%, transparent); margin-top: 1.4rem; }
+  .note b { color: var(--ink); font-weight: 700; }
+  .note.lessor { border-color: var(--lessor); }
+  .note.renter { border-color: var(--renter); }
+
+  footer { padding: 2.5rem 0 4rem; }
+  footer p { font-family: var(--mono); font-size: 0.7rem; color: var(--ink-soft); }
+
+  @media (max-width: 860px) {
+    .cover { grid-template-columns: 1fr; }
+    .grid-3 { grid-template-columns: 1fr; }
+    .grid-2 { grid-template-columns: 1fr; }
+    .sheet-nav { display: none; }
+    .topbar { justify-content: space-between; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .sheet { transition: opacity 0.2s ease; }
+  }
+</style>
+
+<header class="topbar">
+  <div class="brand"><span class="mark">H1</span> HOSTEL ONE — SYSTEM REFERENCE</div>
+  <nav class="sheet-nav">
+    <a href="https://3cbacff4-43b2-4352-81b4-ad2769085e95.frame.claudeusercontent.com/_f/1784439625-012b/#a01">A-01</a><a href="https://3cbacff4-43b2-4352-81b4-ad2769085e95.frame.claudeusercontent.com/_f/1784439625-012b/#a02">A-02</a><a href="https://3cbacff4-43b2-4352-81b4-ad2769085e95.frame.claudeusercontent.com/_f/1784439625-012b/#a03">A-03</a><a href="https://3cbacff4-43b2-4352-81b4-ad2769085e95.frame.claudeusercontent.com/_f/1784439625-012b/#a04">A-04</a>
+    <a href="https://3cbacff4-43b2-4352-81b4-ad2769085e95.frame.claudeusercontent.com/_f/1784439625-012b/#a05">A-05</a><a href="https://3cbacff4-43b2-4352-81b4-ad2769085e95.frame.claudeusercontent.com/_f/1784439625-012b/#a06">A-06</a><a href="https://3cbacff4-43b2-4352-81b4-ad2769085e95.frame.claudeusercontent.com/_f/1784439625-012b/#a07">A-07</a><a href="https://3cbacff4-43b2-4352-81b4-ad2769085e95.frame.claudeusercontent.com/_f/1784439625-012b/#a08">A-08</a>
+  </nav>
+</header>
+
+<main>
+
+  <section class="cover">
+    <div>
+      <p class="eyebrow">Reference sheet · generated from source</p>
+      <h1>Hostel&nbsp;One</h1>
+      <p class="sub">A two-sided PG / hostel accommodation platform. One backend service runs the property owner's side of the business, a second runs the tenant's side, and a single React app serves both — talking to each service independently, over the same shared database.</p>
+      <div class="tag">
+        <span class="chip">Spring Boot 4.1 · Java 17</span>
+        <span class="chip">React 19 · Vite 6 · TypeScript</span>
+        <span class="chip">PostgreSQL</span>
+        <span class="chip">JWT auth</span>
+      </div>
+    </div>
+    <div class="factbox">
+      <div class="row"><span>Applications</span><span>3 — web, lessor-service, renter-service</span></div>
+      <div class="row"><span>Database</span><span><code>hostel_one</code> (PostgreSQL, shared)</span></div>
+      <div class="row"><span>Ports</span><span>web :5173 · lessor :8081 · renter :8082</span></div>
+      <div class="row"><span>Auth</span><span>Stateless JWT, HS256, shared secret</span></div>
+      <div class="row"><span>Users</span><span>Two roles: LESSOR (owner), RENTER (tenant)</span></div>
+      <div class="row"><span>Docs</span><span>springdoc at <code>/swagger-ui.html</code> on each service</span></div>
+    </div>
+  </section>
+
+  <!-- A-01 ARCHITECTURE -->
+  <section class="sheet" id="a01">
+    <div class="sheet-head"><span class="code">A-01</span><h2>System Architecture</h2></div>
+    <p class="dek">The web app never talks to a database directly. It holds two completely independent Axios clients — one per backend — each with its own bearer token, its own localStorage session, and its own 401→refresh interceptor. Both backends read and write the same Postgres database, but only one of them owns the schema.</p>
+
+    <div class="sheet-body">
+      <div class="arch">
+        <div class="arch-box">
+          <div class="name">web</div>
+          <div class="meta">React 19 + Vite · :5173 · two Axios clients</div>
+        </div>
+        <div class="connector-pair">
+          <div class="connector"><div class="line"></div><div class="label">bearer JWT</div></div>
+          <div class="connector"><div class="line"></div><div class="label">bearer JWT</div></div>
+        </div>
+        <div class="arch-two">
+          <div class="arch-box lessor">
+            <div class="name">lessor‑service</div>
+            <div class="meta">:8081 · /api/lessor/* · owns Flyway migrations</div>
+          </div>
+          <div class="arch-box renter">
+            <div class="name">renter‑service</div>
+            <div class="meta">:8082 · /api/renter/* · Flyway disabled</div>
+          </div>
+        </div>
+        <div class="connector-pair">
+          <div class="connector"><div class="line"></div><div class="label">JPA</div></div>
+          <div class="connector"><div class="line"></div><div class="label">JPA</div></div>
+        </div>
+        <div class="arch-box db">
+          <div class="name">PostgreSQL — hostel_one</div>
+          <div class="meta">one schema, read/written by both services</div>
+        </div>
+      </div>
+
+      <div class="note"><b>Shared-database, split-ownership pattern.</b> lessor-service and renter-service are separate Maven modules with their own copies of the JPA entities — there is no shared library between them. lessor-service runs the Flyway migrations (<code>spring.flyway.enabled=true</code>); renter-service has Flyway disabled entirely and simply maps onto whatever schema lessor-service has already created, so lessor-service must be migrated first in a fresh environment.</div>
+    </div>
+  </section>
+
+  <!-- A-02 TECH STACK -->
+  <section class="sheet" id="a02">
+    <div class="sheet-head"><span class="code">A-02</span><h2>Tech Stack</h2></div>
+    <p class="dek">Both backends are near-identical Spring Boot 4.1 modules generated from the same template; they diverge mainly in which controllers, entities and Flyway settings they carry.</p>
+
+    <div class="sheet-body grid-3">
+      <div class="panel">
+        <h3><span class="swatch" style="background:var(--ink-soft)"></span>web</h3>
+        <ul>
+          <li><span>React</span><span class="v">19.1</span></li>
+          <li><span>React Router</span><span class="v">7.6</span></li>
+          <li><span>TanStack Query</span><span class="v">5.66</span></li>
+          <li><span>Axios</span><span class="v">1.7</span></li>
+          <li><span>React Hook Form + Zod</span><span class="v">7.54 / 3.24</span></li>
+          <li><span>Recharts</span><span class="v">3.0</span></li>
+          <li><span>Tailwind CSS</span><span class="v">4.0</span></li>
+          <li><span>Vite + TypeScript</span><span class="v">6.0 / 5.7</span></li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3><span class="swatch" style="background:var(--lessor)"></span>lessor-service</h3>
+        <ul>
+          <li><span>Spring Boot</span><span class="v">4.1.0</span></li>
+          <li><span>Java</span><span class="v">17</span></li>
+          <li><span>web, data-jpa, security, validation</span><span class="v">starters</span></li>
+          <li><span>Flyway</span><span class="v">enabled</span></li>
+          <li><span>AspectJ</span><span class="v">audit AOP</span></li>
+          <li><span>Cache</span><span class="v">Caffeine</span></li>
+          <li><span>JJWT</span><span class="v">0.12.6</span></li>
+          <li><span>springdoc-openapi</span><span class="v">2.8.6</span></li>
+          <li><span>Lombok</span><span class="v">1.18.38</span></li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3><span class="swatch" style="background:var(--renter)"></span>renter-service</h3>
+        <ul>
+          <li><span>Spring Boot</span><span class="v">4.1.0</span></li>
+          <li><span>Java</span><span class="v">17</span></li>
+          <li><span>web, data-jpa, security, validation</span><span class="v">starters</span></li>
+          <li><span>Flyway</span><span class="v">disabled</span></li>
+          <li><span>AspectJ</span><span class="v">audit AOP</span></li>
+          <li><span>Cache</span><span class="v">Caffeine</span></li>
+          <li><span>JJWT</span><span class="v">0.12.6</span></li>
+          <li><span>springdoc-openapi</span><span class="v">2.8.6</span></li>
+          <li><span>Lombok</span><span class="v">1.18.38</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- A-03 DATA MODEL -->
+  <section class="sheet" id="a03">
+    <div class="sheet-head"><span class="code">A-03</span><h2>Data Model</h2></div>
+    <p class="dek">Physical containment on one side, people and transactions on the other. Amenities can be attached at the hostel, floor, or room level via three separate join entities.</p>
+
+    <div class="sheet-body grid-2">
+      <div class="panel">
+        <h3>Property hierarchy</h3>
+        <div class="tree">
+          <div class="node"><span class="t">Hostel</span><span class="d">+ HostelAddress, amenities</span></div>
+          <div class="lvl">
+            <div class="node"><span class="t">Floor</span><span class="d">amenities</span></div>
+            <div class="lvl">
+              <div class="node"><span class="t">Room</span><span class="d">amenities</span></div>
+              <div class="lvl">
+                <div class="node"><span class="t">Bed</span><span class="d">status, check-in/out dates</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>People &amp; transactions</h3>
+        <ul>
+          <li><span>User</span><span class="v">role: LESSOR / RENTER</span></li>
+          <li><span>RefreshToken</span><span class="v">per user</span></li>
+          <li><span>Booking</span><span class="v">bed ↔ renter</span></li>
+          <li><span>Complaint</span><span class="v">raised by renter</span></li>
+          <li><span>Invoice / Payment</span><span class="v">lessor-managed billing</span></li>
+          <li><span>Notification</span><span class="v">7 typed events</span></li>
+          <li><span>AuditLog</span><span class="v">written by AOP aspect</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sheet-body" style="margin-top: 1.5rem;">
+      <div class="twrap">
+        <table>
+          <thead><tr><th>Entity</th><th>lessor-service</th><th>renter-service</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>User</td><td>✓</td><td>✓</td><td>Single <code>users</code> table, shared login/registration across both apps</td></tr>
+            <tr><td>Hostel, HostelAddress</td><td>✓</td><td>✓</td><td>Street address is field-level encrypted</td></tr>
+            <tr><td>Floor, Room, Bed</td><td>✓ read/write</td><td>✓ read-only usage</td><td>Renter never mutates the property graph</td></tr>
+            <tr><td>Amenity + join tables</td><td>✓</td><td>✓</td><td>Hostel-, floor- and room-level assignment</td></tr>
+            <tr><td>Booking</td><td>✓ approve/reject</td><td>✓ create/view own</td><td>Same table, opposite ends of the workflow</td></tr>
+            <tr><td>Complaint</td><td>✓ triage</td><td>✓ raise/view own</td><td>&nbsp;</td></tr>
+            <tr><td>Notification</td><td>✓</td><td>✓</td><td>Each service only ever notifies its own user</td></tr>
+            <tr><td>RefreshToken</td><td>✓</td><td>✓</td><td>Opaque token, stored server-side per service</td></tr>
+            <tr><td>AuditLog</td><td>✓</td><td>✓</td><td>Written by <code>@Auditable</code> + <code>AuditAspect</code></td></tr>
+            <tr><td>Invoice, Payment</td><td>✓</td><td>—</td><td>Billing is a lessor-only concern; no renter entity at all</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- A-04 STATE FLOWS -->
+  <section class="sheet" id="a04">
+    <div class="sheet-head"><span class="code">A-04</span><h2>Domain State Flows</h2></div>
+    <p class="dek">Four enums drive most of the business logic. Each is a small, explicit state machine rather than a free-text status field.</p>
+
+    <div class="sheet-body">
+      <div class="flow-block">
+        <div class="flow-title">Bed — BedStatus</div>
+        <div class="flow">
+          <span class="pill good">Available</span><span class="arrow">→</span><span class="pill warn">Booked</span><span class="arrow">→</span><span class="pill good">Available</span>
+        </div>
+        <div class="flow" style="margin-top:0.4rem;">
+          <span class="pill good">Available</span><span class="arrow">⇄</span><span class="pill bad">Maintenance</span><span class="tag" style="margin-left:0.5rem;">reason recorded on the bed</span>
+        </div>
+      </div>
+      <div class="flow-block">
+        <div class="flow-title">Booking — BookingStatus</div>
+        <div class="flow">
+          <span class="pill warn">Pending</span><span class="arrow">→</span><span class="pill good">Approved</span><span class="arrow">→</span><span class="pill neutral">Cancelled</span>
+        </div>
+        <div class="flow" style="margin-top:0.4rem;">
+          <span class="pill warn">Pending</span><span class="arrow">→</span><span class="pill bad">Rejected</span>
+        </div>
+      </div>
+      <div class="flow-block">
+        <div class="flow-title">Complaint — ComplaintStatus</div>
+        <div class="flow">
+          <span class="pill bad">Open</span><span class="arrow">→</span><span class="pill warn">In Progress</span><span class="arrow">→</span><span class="pill good">Resolved</span>
+        </div>
+        <div class="flow" style="margin-top:0.4rem;">
+          <span class="pill bad">Open</span> / <span class="pill warn">In Progress</span><span class="arrow">→</span><span class="pill neutral">Rejected</span>
+        </div>
+      </div>
+      <div class="flow-block">
+        <div class="flow-title">Invoice — InvoiceStatus</div>
+        <div class="flow">
+          <span class="pill warn">Pending</span><span class="arrow">→</span><span class="pill warn">Partially Paid</span><span class="arrow">→</span><span class="pill good">Paid</span>
+        </div>
+      </div>
+      <div class="flow-block">
+        <div class="flow-title">Notification — NotificationType (fires on the events above)</div>
+        <div class="tagset">
+          <span class="tag">BOOKING_REQUESTED</span><span class="tag">BOOKING_APPROVED</span><span class="tag">BOOKING_REJECTED</span>
+          <span class="tag">RENT_DUE_REMINDER</span><span class="tag">PAYMENT_RECEIVED</span><span class="tag">COMPLAINT_UPDATED</span><span class="tag">MAINTENANCE_UPDATE</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- A-05 API — LESSOR -->
+  <section class="sheet" id="a05">
+    <div class="sheet-head"><span class="code">A-05</span><h2>API Reference — lessor-service</h2></div>
+    <p class="dek">Base URL <code>:8081/api/lessor</code>. Everything except <code>/auth/*</code> requires a bearer access token.</p>
+
+    <div class="sheet-body">
+      <div class="twrap">
+        <table>
+          <thead><tr><th style="width:5.5rem">Method</th><th>Path</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr class="group-row"><td colspan="3">Auth — public</td></tr>
+            <tr><td><span class="m m-post">POST</span></td><td class="path">/auth/register</td><td>Register a new lessor account</td></tr>
+            <tr><td><span class="m m-post">POST</span></td><td class="path">/auth/login</td><td>Exchange credentials for access + refresh token</td></tr>
+            <tr><td><span class="m m-post">POST</span></td><td class="path">/auth/refresh</td><td>Rotate the refresh token for a new access token</td></tr>
+
+            <tr class="group-row"><td colspan="3">Hostel setup — property, floors, rooms, beds, amenities</td></tr>
+            <tr><td><span class="m m-get">GET</span></td><td class="path">/hostel</td><td>Get this lessor's hostel profile</td></tr>
+            <tr><td><span class="m m-post">POST</span></td><td class="path">/hostel</td><td>Create the hostel (one-time setup)</td></tr>
+            <tr><td><span class="m m-put">PUT</span></td><td class="path">/hostel</td><td>Update hostel details</td></tr>
+            <tr><td><span class="m m-get">GET</span></td><td class="path">/hostel/floors</td><td>List floors</td></tr>
+            <tr><td><span class="m m-post">POST</span></td><td class="path">/hostel/floors</td><td>Add a floor</td></tr>
+            <tr><td><span class="m m-delete">DELETE</span></td><td class="path">/hostel/floors/{id}</td><td>Remove a floor</td></tr>
+            <tr><td><span class="m m-post">POST</span></td><td class="path">/hostel/floors/{id}/amenities</td><td>Assign amenities to a floor</td></tr>
+            <tr><td><span class="m m-post">POST</span></td><td class="path">/hostel/rooms</td><td>Add a room</td></tr>
+            <tr><td><span class="m m-put">PUT</span></td><td class="path">/hostel/rooms/{id}</td><td>Update a room</td></tr>
+            <tr><td><span class="m m-delete">DELETE</span></td><td class="path">/hostel/rooms/{id}</td><td>Remove a room</td></tr>
+            <tr><td><span class="m m-post">POST</span></td><td class="path">/hostel/rooms/{id}/amenities</td><td>Assign amenities to a room</td></tr>
+            <tr><td><span class="m m-get">GET</span></td><td class="path">/hostel/beds</td><td>List beds (the bed board)</td></tr>
+            <tr><td><span class="m m-post">POST</span></td><td class="path">/hostel/beds</td><td>Add a bed</td></tr>
+            <tr><td><span class="m m-delete">DELETE</span></td><td class="path">/hostel/beds/{id}</td><td>Remove a bed</td></tr>
+            <tr><td><span class="m m-patch">PATCH</span></td><td class="path">/hostel/beds/{id}/maintenance</td><td>Mark a bed under maintenance, with a reason</td></tr>
+            <tr><td><span class="m m-patch">PATCH</span></td><td class="path">/hostel/beds/{id}/available</td><td>Clear a bed back to available</td></tr>
+            <tr><td><span class="m m-patch">PATCH</span></td><td class="path">/hostel/beds/{id}/next-month-rent</td><td>Toggle next-month rent paid flag</td></tr>
+            <tr><td><span class="m m-post">POST</span></td><td class="path">/hostel/amenities</td><td>Define a new amenity type</td></tr>
+
+            <tr class="group-row"><td colspan="3">Bookings</td></tr>
+            <tr><td><span class="m m-get">GET</span></td><td class="path">/bookings</td><td>List incoming booking requests</td></tr>
+            <tr><td><span class="m m-post">POST</span></td><td class="path">/bookings/{id}/approve</td><td>Approve a request, occupy the bed</td></tr>
+            <tr><td><span class="m m-post">POST</span></td><td class="path">/bookings/{id}/reject</td><td>Reject a request</td></tr>
+
+            <tr class="group-row"><td colspan="3">Complaints</td></tr>
+            <tr><td><span class="m m-get">GET</span></td><td class="path">/complaints</td><td>List complaints raised against the hostel</td></tr>
+            <tr><td><span class="m m-patch">PATCH</span></td><td class="path">/complaints/{id}/status</td><td>Move a complaint to a new status</td></tr>
+
+            <tr class="group-row"><td colspan="3">Payments &amp; billing</td></tr>
+            <tr><td><span class="m m-post">POST</span></td><td class="path">/invoices</td><td>Generate an invoice</td></tr>
+            <tr><td><span class="m m-get">GET</span></td><td class="path">/invoices</td><td>List invoices</td></tr>
+            <tr><td><span class="m m-post">POST</span></td><td class="path">/payments</td><td>Record a payment against an invoice</td></tr>
+            <tr><td><span class="m m-get">GET</span></td><td class="path">/payments</td><td>List payments</td></tr>
+            <tr><td><span class="m m-get">GET</span></td><td class="path">/payments/{id}/receipt</td><td>Fetch a payment receipt</td></tr>
+
+            <tr class="group-row"><td colspan="3">Dashboard, notifications, profile</td></tr>
+            <tr><td><span class="m m-get">GET</span></td><td class="path">/dashboard</td><td>Aggregated occupancy/revenue stats — cached 30s</td></tr>
+            <tr><td><span class="m m-get">GET</span></td><td class="path">/notifications</td><td>List notifications</td></tr>
+            <tr><td><span class="m m-patch">PATCH</span></td><td class="path">/notifications/{id}/read</td><td>Mark a notification read</td></tr>
+            <tr><td><span class="m m-get">GET</span></td><td class="path">/profile</td><td>Get lessor profile</td></tr>
+            <tr><td><span class="m m-put">PUT</span></td><td class="path">/profile</td><td>Update lessor profile</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note lessor"><b>Also runs:</b> a <code>RentReminderScheduler</code> — a scheduled job with no HTTP endpoint that fires <code>RENT_DUE_REMINDER</code> notifications on a timer.</div>
+    </div>
+  </section>
+
+  <!-- A-06 API — RENTER -->
+  <section class="sheet" id="a06">
+    <div class="sheet-head"><span class="code">A-06</span><h2>API Reference — renter-service</h2></div>
+    <p class="dek">Base URL <code>:8082/api/renter</code>. Everything except <code>/auth/*</code> requires a bearer access token.</p>
+
+    <div class="sheet-body">
+      <div class="twrap">
+        <table>
+          <thead><tr><th style="width:5.5rem">Method</th><th>Path</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr class="group-row"><td colspan="3">Auth — public</td></tr>
+            <tr><td><span class="m m-post">POST</span></td><td class="path">/auth/register</td><td>Register a new renter account</td></tr>
+            <tr><td><span class="m m-post">POST</span></td><td class="path">/auth/login</td><td>Exchange credentials for access + refresh token</td></tr>
+            <tr><td><span class="m m-post">POST</span></td><td class="path">/auth/refresh</td><td>Rotate the refresh token for a new access token</td></tr>
+
+            <tr class="group-row"><td colspan="3">Discovery</td></tr>
+            <tr><td><span class="m m-get">GET</span></td><td class="path">/hostels</td><td>Search/browse hostels — cached 30s</td></tr>
+            <tr><td><span class="m m-get">GET</span></td><td class="path">/hostels/{id}</td><td>Hostel detail: floors, rooms, beds, amenities</td></tr>
+
+            <tr class="group-row"><td colspan="3">Bookings</td></tr>
+            <tr><td><span class="m m-post">POST</span></td><td class="path">/bookings</td><td>Request a bed</td></tr>
+            <tr><td><span class="m m-get">GET</span></td><td class="path">/bookings/mine</td><td>List my booking history</td></tr>
+
+            <tr class="group-row"><td colspan="3">Connections</td></tr>
+            <tr><td><span class="m m-post">POST</span></td><td class="path">/hostels/{hostelId}/connections</td><td>Given phone numbers/emails, find which of them already have an approved booking at this hostel</td></tr>
+
+            <tr class="group-row"><td colspan="3">Complaints</td></tr>
+            <tr><td><span class="m m-post">POST</span></td><td class="path">/complaints</td><td>Raise a complaint</td></tr>
+            <tr><td><span class="m m-get">GET</span></td><td class="path">/complaints/mine</td><td>List my complaints</td></tr>
+
+            <tr class="group-row"><td colspan="3">Notifications &amp; profile</td></tr>
+            <tr><td><span class="m m-get">GET</span></td><td class="path">/notifications</td><td>List notifications</td></tr>
+            <tr><td><span class="m m-patch">PATCH</span></td><td class="path">/notifications/{id}/read</td><td>Mark a notification read</td></tr>
+            <tr><td><span class="m m-get">GET</span></td><td class="path">/profile</td><td>Get renter profile</td></tr>
+            <tr><td><span class="m m-put">PUT</span></td><td class="path">/profile</td><td>Update renter profile</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note renter"><b>Connections is the one distinctive feature here:</b> the client supplies a list of phone numbers / emails (e.g. from the renter's own contacts, entered client-side — no OAuth/contacts-permission flow), and the service reports back which of those people are already approved bookers at the same hostel. "A few people you know are already here."</div>
+    </div>
+  </section>
+
+  <!-- A-07 ROUTE MAP -->
+  <section class="sheet" id="a07">
+    <div class="sheet-head"><span class="code">A-07</span><h2>Web App Route Map</h2></div>
+    <p class="dek">One React Router tree in <code>App.tsx</code> serves both sides. Renter and lessor areas are entirely separate branches, each behind its own <code>ProtectedRoute</code> guard and layout shell.</p>
+
+    <div class="sheet-body">
+      <div class="tagset" style="margin-bottom: 1.6rem;">
+        <span class="tag">/ — LandingPage</span>
+        <span class="tag">/renter/login, /renter/register</span>
+        <span class="tag">/lessor/login, /lessor/register</span>
+      </div>
+      <div class="grid-2">
+        <div class="route-col renter">
+          <h3>Renter — /renter/*</h3>
+          <ul class="route-list">
+            <li><span class="path">/renter/discover</span><span class="comp">DiscoverPage</span><span class="badge">protected</span></li>
+            <li><span class="path">/renter/hostels/:hostelId</span><span class="comp">HostelDetailPage</span><span class="badge">protected</span></li>
+            <li><span class="path">/renter/bookings</span><span class="comp">MyBookingsPage</span><span class="badge">protected</span></li>
+            <li><span class="path">/renter/complaints</span><span class="comp">ComplaintsPage</span><span class="badge">protected</span></li>
+            <li><span class="path">/renter/notifications</span><span class="comp">NotificationsPage</span><span class="badge">protected</span></li>
+            <li><span class="path">/renter/profile</span><span class="comp">RenterProfilePage</span><span class="badge">protected</span></li>
+          </ul>
+        </div>
+        <div class="route-col lessor">
+          <h3>Lessor — /lessor/*</h3>
+          <ul class="route-list">
+            <li><span class="path">/lessor/dashboard</span><span class="comp">DashboardPage</span><span class="badge">protected</span></li>
+            <li><span class="path">/lessor/hostel</span><span class="comp">HostelSetupPage</span><span class="badge">protected</span></li>
+            <li><span class="path">/lessor/beds</span><span class="comp">BedBoardPage</span><span class="badge">protected</span></li>
+            <li><span class="path">/lessor/bookings</span><span class="comp">BookingRequestsPage</span><span class="badge">protected</span></li>
+            <li><span class="path">/lessor/complaints</span><span class="comp">ComplaintsInboxPage</span><span class="badge">protected</span></li>
+            <li><span class="path">/lessor/payments</span><span class="comp">PaymentsPage</span><span class="badge">protected</span></li>
+            <li><span class="path">/lessor/notifications</span><span class="comp">LessorNotificationsPage</span><span class="badge">protected</span></li>
+            <li><span class="path">/lessor/profile</span><span class="comp">LessorProfilePage</span><span class="badge">protected</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="note">Unmatched paths, and <code>/renter</code> / <code>/lessor</code> themselves, redirect — to the login page if signed out, or straight into <code>discover</code> / <code>dashboard</code> if a session already exists.</div>
+    </div>
+  </section>
+
+  <!-- A-08 AUTH & SECURITY -->
+  <section class="sheet" id="a08">
+    <div class="sheet-head"><span class="code">A-08</span><h2>Auth &amp; Security</h2></div>
+    <p class="dek">Two logins, one signing key, no server-side HTTP sessions.</p>
+
+    <div class="sheet-body grid-2">
+      <div class="panel">
+        <h3>Token lifecycle</h3>
+        <ul>
+          <li><span>Login / register</span><span class="v">returns access + opaque refresh token</span></li>
+          <li><span>Access token</span><span class="v">JWT, HS256, 30 min TTL</span></li>
+          <li><span>Refresh token</span><span class="v">opaque UUID pair, 14 day TTL, stored server-side</span></li>
+          <li><span>Client storage</span><span class="v">localStorage, keyed per app</span></li>
+          <li><span>renter key</span><span class="v"><code>hostelone_renter_session</code></span></li>
+          <li><span>lessor key</span><span class="v"><code>hostelone_lessor_session</code></span></li>
+          <li><span>On 401</span><span class="v">single in-flight refresh, then retries the original call</span></li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3>What's on the token</h3>
+        <ul>
+          <li><span>sub</span><span class="v">user id</span></li>
+          <li><span>email</span><span class="v">claim</span></li>
+          <li><span>role</span><span class="v">LESSOR / RENTER</span></li>
+          <li><span>tenant</span><span class="v">tenantId claim</span></li>
+          <li><span>Passwords</span><span class="v">BCrypt</span></li>
+          <li><span>Sessions</span><span class="v">STATELESS — no HttpSession</span></li>
+          <li><span>Method security</span><span class="v">@EnableMethodSecurity</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sheet-body" style="margin-top: 1.5rem;">
+      <div class="note"><b>Both services sign and verify with the same JWT secret</b> — a deliberate choice recorded directly in <code>JwtService</code>'s own code comment, so that a future gateway (or either service) can validate a token issued by the other without calling back to it. In practice each service still only exposes the routes and data for its own role.</div>
+      <div class="note"><b>Field-level encryption:</b> an <code>AttributeConverter</code> (<code>EncryptedStringConverter</code>) applies AES-256-GCM with a random 12-byte IV per value to non-searchable sensitive columns — exact street address, payment transaction references. Searchable fields (city/state, phone/email used for login) stay plaintext at the application layer by design, relying on transport and at-rest disk encryption instead.</div>
+      <div class="note"><b>Audit trail:</b> service methods annotated <code>@Auditable(action, entityType)</code> are wrapped by an AspectJ <code>@Around</code> advice that writes an <code>AuditLog</code> row after the method returns — actor id from the security context, entity id read reflectively off the return value.</div>
+      <div class="note"><b>CORS:</b> restricted to <code>app.cors.allowed-origins</code>, defaulting to <code>http://localhost:5173</code> — i.e. only the Vite dev server by default.</div>
+    </div>
+  </section>
+
+  <footer>
+    <p>HOSTEL ONE — SYSTEM REFERENCE · generated by reading lessor-service, renter-service and web · lessor-service/, renter-service/, web/</p>
+  </footer>
+
+</main>
+
+</body></html>

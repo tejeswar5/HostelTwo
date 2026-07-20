@@ -1,0 +1,36 @@
+package com.pgm.notification.listener;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pgm.notification.entity.NotificationType;
+import com.pgm.notification.event.PaymentReceivedEvent;
+import com.pgm.notification.service.NotificationService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Component;
+
+@Component
+public class PaymentEventListener {
+
+    private static final Logger log = LoggerFactory.getLogger(PaymentEventListener.class);
+
+    private final NotificationService notificationService;
+    private final ObjectMapper objectMapper;
+
+    public PaymentEventListener(NotificationService notificationService, ObjectMapper objectMapper) {
+        this.notificationService = notificationService;
+        this.objectMapper = objectMapper;
+    }
+
+    @KafkaListener(topics = "payment-events", groupId = "${spring.kafka.consumer.group-id}")
+    public void onPaymentReceived(String payload) {
+        try {
+            PaymentReceivedEvent event = objectMapper.readValue(payload, PaymentReceivedEvent.class);
+            notificationService.notify(event.renterId(), NotificationType.PAYMENT_RECEIVED,
+                    "Payment received",
+                    "We received a payment of " + event.amount() + " via " + event.method() + ". Remaining due: " + event.remainingDue() + ".");
+        } catch (Exception e) {
+            log.error("Failed to process payment-events payload: {}", payload, e);
+        }
+    }
+}
