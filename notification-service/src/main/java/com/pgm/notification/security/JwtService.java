@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.Optional;
 
@@ -41,7 +42,8 @@ public class JwtService {
             Role role = Role.valueOf(claims.get(CLAIM_ROLE, String.class));
             String tenantId = claims.get(CLAIM_TENANT, String.class);
             String email = claims.get(CLAIM_EMAIL, String.class);
-            return Optional.of(new UserPrincipal(userId, email, role, tenantId));
+            Instant expiresAt = claims.getExpiration().toInstant();
+            return Optional.of(new UserPrincipal(userId, email, role, tenantId, claims.getId(), expiresAt));
         } catch (JwtException | IllegalArgumentException e) {
             return Optional.empty();
         }

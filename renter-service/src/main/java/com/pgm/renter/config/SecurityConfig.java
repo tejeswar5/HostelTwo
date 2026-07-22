@@ -2,6 +2,8 @@ package com.pgm.renter.config;
 
 import com.pgm.renter.security.JwtAuthenticationFilter;
 import com.pgm.renter.security.JwtService;
+import com.pgm.renter.security.RateLimitFilter;
+import com.pgm.renter.security.TokenDenylistService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,12 +27,18 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtService jwtService;
+    private final TokenDenylistService tokenDenylistService;
+    private final RateLimitFilter rateLimitFilter;
     private final String allowedOrigins;
 
     public SecurityConfig(
             JwtService jwtService,
+            TokenDenylistService tokenDenylistService,
+            RateLimitFilter rateLimitFilter,
             @Value("${app.cors.allowed-origins}") String allowedOrigins) {
         this.jwtService = jwtService;
+        this.tokenDenylistService = tokenDenylistService;
+        this.rateLimitFilter = rateLimitFilter;
         this.allowedOrigins = allowedOrigins;
     }
 
@@ -46,14 +54,15 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/renter/auth/**").permitAll()
+                        .requestMatchers("/api/renter/auth/register", "/api/renter/auth/login", "/api/renter/auth/refresh").permitAll()
                         .requestMatchers("/actuator/health/**").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(handling -> handling
                         .authenticationEntryPoint((request, response, ex) -> writeJsonError(response, HttpStatus.UNAUTHORIZED, "Authentication required"))
                         .accessDeniedHandler((request, response, ex) -> writeJsonError(response, HttpStatus.FORBIDDEN, "Access denied")))
-                .addFilterBefore(new JwtAuthenticationFilter(jwtService), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtAuthenticationFilter(jwtService, tokenDenylistService), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

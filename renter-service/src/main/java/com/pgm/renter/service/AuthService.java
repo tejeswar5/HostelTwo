@@ -13,6 +13,8 @@ import com.pgm.renter.exception.NotFoundException;
 import com.pgm.renter.repository.RefreshTokenRepository;
 import com.pgm.renter.repository.UserRepository;
 import com.pgm.renter.security.JwtService;
+import com.pgm.renter.security.TokenDenylistService;
+import com.pgm.renter.security.UserPrincipal;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtService jwtService;
+    private final TokenDenylistService tokenDenylistService;
     private final PasswordEncoder passwordEncoder;
     private final long refreshTokenTtlDays;
 
@@ -37,11 +40,13 @@ public class AuthService {
             UserRepository userRepository,
             RefreshTokenRepository refreshTokenRepository,
             JwtService jwtService,
+            TokenDenylistService tokenDenylistService,
             PasswordEncoder passwordEncoder,
             @Value("${app.jwt.refresh-token-ttl-days}") long refreshTokenTtlDays) {
         this.userRepository = userRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.jwtService = jwtService;
+        this.tokenDenylistService = tokenDenylistService;
         this.passwordEncoder = passwordEncoder;
         this.refreshTokenTtlDays = refreshTokenTtlDays;
     }
@@ -97,6 +102,18 @@ public class AuthService {
         User user = userRepository.findById(token.getUser().getId())
                 .orElseThrow(() -> new NotFoundException("User no longer exists"));
         return issueTokens(user);
+    }
+
+    @Transactional
+    public void logout(UserPrincipal principal, String rawRefreshToken) {
+        tokenDenylistService.revoke(principal.jti(), principal.expiresAt());
+        if (rawRefreshToken != null && !rawRefreshToken.isBlank()) {
+            refreshTokenRepository.findByTokenHashAndRevokedFalse(sha256(rawRefreshToken))
+                    .ifPresent(token -> {
+                        token.setRevoked(true);
+                        refreshTokenRepository.save(token);
+                    });
+        }
     }
 
     private AuthResponse issueTokens(User user) {

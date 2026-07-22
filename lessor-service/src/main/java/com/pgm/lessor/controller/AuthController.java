@@ -2,12 +2,15 @@ package com.pgm.lessor.controller;
 
 import com.pgm.lessor.dto.auth.AuthResponse;
 import com.pgm.lessor.dto.auth.LoginRequest;
+import com.pgm.lessor.dto.auth.LogoutRequest;
 import com.pgm.lessor.dto.auth.RefreshRequest;
 import com.pgm.lessor.dto.auth.RegisterLessorRequest;
+import com.pgm.lessor.security.UserPrincipal;
 import com.pgm.lessor.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -33,5 +36,11 @@ public class AuthController {
     @PostMapping("/refresh")
     public AuthResponse refresh(@Valid @RequestBody RefreshRequest request) {
         return authService.refresh(request);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@AuthenticationPrincipal UserPrincipal principal, @RequestBody(required = false) LogoutRequest request) {
+        authService.logout(principal, request == null ? null : request.refreshToken());
+        return ResponseEntity.noContent().build();
     }
 }
