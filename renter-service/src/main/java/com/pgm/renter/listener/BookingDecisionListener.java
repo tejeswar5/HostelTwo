@@ -5,9 +5,13 @@ import com.pgm.renter.entity.Booking;
 import com.pgm.renter.entity.BookingStatus;
 import com.pgm.renter.event.BookingDecisionEvent;
 import com.pgm.renter.repository.BookingRepository;
+import com.pgm.renter.service.ProcessedEventGuard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,15 +30,30 @@ public class BookingDecisionListener {
 
     private final BookingRepository bookingRepository;
     private final ObjectMapper objectMapper;
+    private final ProcessedEventGuard processedEventGuard;
+    private final String groupId;
 
-    public BookingDecisionListener(BookingRepository bookingRepository, ObjectMapper objectMapper) {
+    public BookingDecisionListener(
+            BookingRepository bookingRepository,
+            ObjectMapper objectMapper,
+            ProcessedEventGuard processedEventGuard,
+            @Value("${spring.kafka.consumer.group-id}") String groupId) {
         this.bookingRepository = bookingRepository;
         this.objectMapper = objectMapper;
+        this.processedEventGuard = processedEventGuard;
+        this.groupId = groupId;
     }
 
     @KafkaListener(topics = "booking-decisions", groupId = "${spring.kafka.consumer.group-id}")
     @Transactional
-    public void onBookingDecision(String payload) {
+    public void onBookingDecision(
+            String payload,
+            @Header(KafkaHeaders.RECEIVED_PARTITION) int partition,
+            @Header(KafkaHeaders.OFFSET) long offset) {
+        if (processedEventGuard.alreadyProcessed(groupId, "booking-decisions", partition, offset)) {
+            log.info("Skipping already-processed booking-decisions message at partition {} offset {}", partition, offset);
+            return;
+        }
         try {
             BookingDecisionEvent event = objectMapper.readValue(payload, BookingDecisionEvent.class);
             if (!"APPROVED".equals(event.eventType()) && !"REJECTED".equals(event.eventType())) {

@@ -2,6 +2,7 @@ package com.pgm.notification.config;
 
 import com.pgm.notification.security.JwtAuthenticationFilter;
 import com.pgm.notification.security.JwtService;
+import com.pgm.notification.security.TokenDenylistService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,12 +24,15 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtService jwtService;
+    private final TokenDenylistService tokenDenylistService;
     private final String allowedOrigins;
 
     public SecurityConfig(
             JwtService jwtService,
+            TokenDenylistService tokenDenylistService,
             @Value("${app.cors.allowed-origins}") String allowedOrigins) {
         this.jwtService = jwtService;
+        this.tokenDenylistService = tokenDenylistService;
         this.allowedOrigins = allowedOrigins;
     }
 
@@ -45,7 +49,7 @@ public class SecurityConfig {
                 .exceptionHandling(handling -> handling
                         .authenticationEntryPoint((request, response, ex) -> writeJsonError(response, HttpStatus.UNAUTHORIZED, "Authentication required"))
                         .accessDeniedHandler((request, response, ex) -> writeJsonError(response, HttpStatus.FORBIDDEN, "Access denied")))
-                .addFilterBefore(new JwtAuthenticationFilter(jwtService), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtAuthenticationFilter(jwtService, tokenDenylistService), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

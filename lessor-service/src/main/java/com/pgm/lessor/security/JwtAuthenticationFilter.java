@@ -16,9 +16,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String BEARER_PREFIX = "Bearer ";
 
     private final JwtService jwtService;
+    private final TokenDenylistService tokenDenylistService;
 
-    public JwtAuthenticationFilter(JwtService jwtService) {
+    public JwtAuthenticationFilter(JwtService jwtService, TokenDenylistService tokenDenylistService) {
         this.jwtService = jwtService;
+        this.tokenDenylistService = tokenDenylistService;
     }
 
     @Override
@@ -31,7 +33,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (header != null && header.startsWith(BEARER_PREFIX)) {
             String token = header.substring(BEARER_PREFIX.length());
             Optional<UserPrincipal> principal = jwtService.parseAndValidate(token);
-            principal.ifPresent(p -> SecurityContextHolder.getContext().setAuthentication(new JwtAuthenticationToken(p)));
+            principal
+                    .filter(p -> !tokenDenylistService.isRevoked(p.jti()))
+                    .ifPresent(p -> SecurityContextHolder.getContext().setAuthentication(new JwtAuthenticationToken(p)));
         }
         filterChain.doFilter(request, response);
     }

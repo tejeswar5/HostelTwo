@@ -11,10 +11,14 @@ import com.pgm.lessor.repository.BedRepository;
 import com.pgm.lessor.repository.BookingRepository;
 import com.pgm.lessor.repository.UserRepository;
 import com.pgm.lessor.service.EventPublisher;
+import com.pgm.lessor.service.ProcessedEventGuard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,23 +42,37 @@ public class BookingRequestListener {
     private final UserRepository userRepository;
     private final EventPublisher eventPublisher;
     private final ObjectMapper objectMapper;
+    private final ProcessedEventGuard processedEventGuard;
+    private final String groupId;
 
     public BookingRequestListener(
             BedRepository bedRepository,
             BookingRepository bookingRepository,
             UserRepository userRepository,
             EventPublisher eventPublisher,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            ProcessedEventGuard processedEventGuard,
+            @Value("${spring.kafka.consumer.group-id}") String groupId) {
         this.bedRepository = bedRepository;
         this.bookingRepository = bookingRepository;
         this.userRepository = userRepository;
         this.eventPublisher = eventPublisher;
         this.objectMapper = objectMapper;
+        this.processedEventGuard = processedEventGuard;
+        this.groupId = groupId;
     }
 
     @KafkaListener(topics = "booking-requests", groupId = "${spring.kafka.consumer.group-id}")
     @Transactional
-    public void onBookingRequested(String payload) {
+    public void onBookingRequested(
+            String payload,
+            @Header(KafkaHeaders.RECEIVED_PARTITION) int partition,
+            @Header(KafkaHeaders.OFFSET) long offset) {
+        if (processedEventGuard.alreadyProcessed(groupId, "booking-requests", partition, offset)) {
+            log.info("Skipping already-processed booking-requests message at partition {} offset {}", partition, offset);
+            return;
+        }
+
         BookingRequestedEvent event;
         try {
             event = objectMapper.readValue(payload, BookingRequestedEvent.class);

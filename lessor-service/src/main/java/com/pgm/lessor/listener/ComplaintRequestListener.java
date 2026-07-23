@@ -6,9 +6,13 @@ import com.pgm.lessor.entity.Hostel;
 import com.pgm.lessor.event.ComplaintRequestedEvent;
 import com.pgm.lessor.repository.ComplaintRepository;
 import com.pgm.lessor.repository.HostelRepository;
+import com.pgm.lessor.service.ProcessedEventGuard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,16 +26,33 @@ public class ComplaintRequestListener {
     private final ComplaintRepository complaintRepository;
     private final HostelRepository hostelRepository;
     private final ObjectMapper objectMapper;
+    private final ProcessedEventGuard processedEventGuard;
+    private final String groupId;
 
-    public ComplaintRequestListener(ComplaintRepository complaintRepository, HostelRepository hostelRepository, ObjectMapper objectMapper) {
+    public ComplaintRequestListener(
+            ComplaintRepository complaintRepository,
+            HostelRepository hostelRepository,
+            ObjectMapper objectMapper,
+            ProcessedEventGuard processedEventGuard,
+            @Value("${spring.kafka.consumer.group-id}") String groupId) {
         this.complaintRepository = complaintRepository;
         this.hostelRepository = hostelRepository;
         this.objectMapper = objectMapper;
+        this.processedEventGuard = processedEventGuard;
+        this.groupId = groupId;
     }
 
     @KafkaListener(topics = "complaint-requests", groupId = "${spring.kafka.consumer.group-id}")
     @Transactional
-    public void onComplaintRequested(String payload) {
+    public void onComplaintRequested(
+            String payload,
+            @Header(KafkaHeaders.RECEIVED_PARTITION) int partition,
+            @Header(KafkaHeaders.OFFSET) long offset) {
+        if (processedEventGuard.alreadyProcessed(groupId, "complaint-requests", partition, offset)) {
+            log.info("Skipping already-processed complaint-requests message at partition {} offset {}", partition, offset);
+            return;
+        }
+
         ComplaintRequestedEvent event;
         try {
             event = objectMapper.readValue(payload, ComplaintRequestedEvent.class);
