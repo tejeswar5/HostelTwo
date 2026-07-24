@@ -1,0 +1,28 @@
+# {$DOMAIN} is substituted from the DOMAIN env var passed to the caddy/web
+# container (see docker-compose.prod.yml). Caddy issues and renews a free
+# Let's Encrypt certificate for it automatically - no manual TLS setup.
+#
+# Only 3 API prefixes are routed here because that's all the browser ever
+# calls directly (see web/src/api/lessorApi.ts, renterApi.ts) - the public
+# hostel-discovery endpoint (/api/public/**) is only ever called
+# server-to-server, renter-service -> lessor-service, entirely inside the
+# Docker network, so it's deliberately not exposed here.
+{$DOMAIN} {
+	handle /api/lessor/* {
+		reverse_proxy lessor-service:8081
+	}
+
+	handle /api/renter/* {
+		reverse_proxy renter-service:8082
+	}
+
+	handle /api/notifications/* {
+		reverse_proxy notification-service:8083
+	}
+
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+}

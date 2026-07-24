@@ -1,0 +1,145 @@
+version: "3.9"
+
+# Production topology: same 6 services as docker-compose.yml, plus a `web`
+# container (built SPA + Caddy reverse proxy, automatic HTTPS). The key
+# difference from the dev compose file: postgres/kafka/redis/lessor-service/
+# renter-service/notification-service no longer publish ports to the host at
+# all - they're reachable from other containers over the internal Docker
+# network (by service name) exactly as before, but no longer reachable from
+# the public internet. Only `web` (80/443) is internet-facing.
+#
+# Run with a separate env file so production secrets are never the same ones
+# used for local dev:
+#   docker-compose --env-file .env.prod -f docker-compose.prod.yml up -d --build
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./infra/postgres-init.sql:/docker-entrypoint-initdb.d/postgres-init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  kafka:
+    image: apache/kafka:3.8.0
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  lessor-service:
+    build: ./lessor-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      redis:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/hostel_platform?currentSchema=lessor
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      CORS_ALLOWED_ORIGINS: https://${DOMAIN:?DOMAIN must be set - see .env.example}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set - see .env.example}
+      FIELD_ENCRYPTION_KEY: ${FIELD_ENCRYPTION_KEY:?FIELD_ENCRYPTION_KEY must be set - see .env.example}
+    restart: unless-stopped
+
+  renter-service:
+    build: ./renter-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      redis:
+        condition: service_healthy
+      lessor-service:
+        condition: service_started
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/hostel_platform?currentSchema=renter
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      LESSOR_SERVICE_URL: http://lessor-service:8081
+      CORS_ALLOWED_ORIGINS: https://${DOMAIN:?DOMAIN must be set - see .env.example}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set - see .env.example}
+    restart: unless-stopped
+
+  notification-service:
+    build: ./notification-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      redis:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/hostel_platform?currentSchema=notification
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      CORS_ALLOWED_ORIGINS: https://${DOMAIN:?DOMAIN must be set - see .env.example}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set - see .env.example}
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./web
+      args:
+        VITE_LESSOR_API_URL: https://${DOMAIN:?DOMAIN must be set - see .env.example}/api/lessor
+        VITE_RENTER_API_URL: https://${DOMAIN:?DOMAIN must be set - see .env.example}/api/renter
+        VITE_NOTIFICATION_API_URL: https://${DOMAIN:?DOMAIN must be set - see .env.example}/api/notifications
+    depends_on:
+      - lessor-service
+      - renter-service
+      - notification-service
+    environment:
+      DOMAIN: ${DOMAIN:?DOMAIN must be set - see .env.example}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+  # Caddy stores its issued Let's Encrypt certs here - without persisting
+  # this, every container restart would request a fresh cert and eventually
+  # hit Let's Encrypt's rate limits.
+  caddy-data:
