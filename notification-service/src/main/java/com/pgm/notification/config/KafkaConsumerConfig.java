@@ -1,6 +1,8 @@
 package com.pgm.notification.config;
 
+import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -29,6 +31,17 @@ public class KafkaConsumerConfig {
     @Value("${spring.kafka.consumer.group-id}")
     private String groupId;
 
+    /** Defaults keep local/docker-compose Kafka (no auth) working unchanged; a
+     * managed broker (e.g. Aiven) needs SASL_SSL with credentials it supplies. */
+    @Value("${spring.kafka.security.protocol:PLAINTEXT}")
+    private String securityProtocol;
+
+    @Value("${spring.kafka.sasl.mechanism:}")
+    private String saslMechanism;
+
+    @Value("${spring.kafka.sasl.jaas.config:}")
+    private String saslJaasConfig;
+
     @Bean
     public ConsumerFactory<String, String> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
@@ -37,6 +50,11 @@ public class KafkaConsumerConfig {
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        if (!"PLAINTEXT".equals(securityProtocol)) {
+            props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, securityProtocol);
+            props.put(SaslConfigs.SASL_MECHANISM, saslMechanism);
+            props.put(SaslConfigs.SASL_JAAS_CONFIG, saslJaasConfig);
+        }
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
