@@ -1,0 +1,982 @@
+<title>Hostel One — Low-Level Design</title>
+<style>
+:root{
+  --bg:#f7f5f0; --surface:#ffffff; --ink:#22252b; --muted:#6b6f76;
+  --accent:#4263eb; --accent-ink:#ffffff; --border:#e3e0d8;
+  --paper:#fffdfa; --dot:#dcd7cb;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#14161b; --surface:#1b1e25; --ink:#e9e6df; --muted:#9aa0a8; --accent:#7b93ff; --accent-ink:#0e1016; --border:#2a2e37; }
+}
+:root[data-theme="dark"]{ --bg:#14161b; --surface:#1b1e25; --ink:#e9e6df; --muted:#9aa0a8; --accent:#7b93ff; --accent-ink:#0e1016; --border:#2a2e37; }
+:root[data-theme="light"]{ --bg:#f7f5f0; --surface:#ffffff; --ink:#22252b; --muted:#6b6f76; --accent:#4263eb; --accent-ink:#ffffff; --border:#e3e0d8; }
+
+@font-face{ font-family:'HandFallback'; src:local('Segoe Print'),local('Bradley Hand'),local('Comic Sans MS'); }
+
+*{box-sizing:border-box;}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  min-height:100vh;
+}
+.hand{ font-family:'Segoe Print','Bradley Hand','Comic Sans MS',cursive; }
+.mono{ font-family:'Cascadia Code','Consolas','SFMono-Regular',Menlo,monospace; }
+
+header.top{
+  position:sticky; top:0; z-index:10; background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:18px 28px 0 28px;
+}
+header.top h1{
+  font-family:'Segoe Print','Bradley Hand','Comic Sans MS',cursive;
+  font-size:clamp(22px,3vw,32px); margin:0 0 2px 0; text-wrap:balance;
+  letter-spacing:.3px;
+}
+header.top p.sub{ margin:0 0 14px 0; color:var(--muted); font-size:13.5px; max-width:70ch; }
+nav.tabs{ display:flex; gap:10px; flex-wrap:wrap; padding-bottom:14px; overflow-x:auto; }
+nav.tabs button{
+  font:inherit; font-size:13.5px; font-weight:600; cursor:pointer;
+  padding:9px 16px; background:var(--surface); color:var(--ink);
+  border:2px solid var(--border); border-radius:255px 15px 225px 15px/15px 225px 15px 255px;
+  white-space:nowrap; transition:transform .12s ease, border-color .12s ease, background .12s ease;
+}
+nav.tabs button:nth-child(odd){ transform:rotate(-.4deg); }
+nav.tabs button:nth-child(even){ transform:rotate(.4deg); }
+nav.tabs button:hover{ border-color:var(--accent); }
+nav.tabs button.active{ background:var(--accent); color:var(--accent-ink); border-color:var(--accent); }
+nav.tabs button:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+
+main{ padding:20px 28px 60px 28px; max-width:1600px; margin:0 auto; }
+.panel{ display:none; }
+.panel.active{ display:block; }
+
+.blurb{
+  color:var(--muted); font-size:14px; max-width:78ch; margin:0 0 16px 0; line-height:1.55;
+}
+.legend{
+  display:flex; flex-wrap:wrap; gap:10px 18px; margin:0 0 16px 0; font-size:12.5px; color:var(--muted);
+}
+.legend span.key{ font-family:inherit; margin-right:4px; }
+.legend b{ color:var(--ink); font-weight:600; }
+
+.canvas-wrap{
+  overflow:auto; border:1px solid var(--border); border-radius:10px;
+  background:var(--paper);
+  background-image: radial-gradient(var(--dot) 1px, transparent 1px);
+  background-size: 20px 20px;
+  padding:10px;
+}
+.canvas-wrap svg{ display:block; }
+
+.hand-text{ font-family:'Segoe Print','Bradley Hand','Comic Sans MS',cursive; fill:#1e1e1e; }
+.mono-text{ font-family:'Cascadia Code','Consolas',monospace; fill:#1e1e1e; }
+.lbl-bg{ fill:#fffdfa; }
+
+section.stack{ display:flex; flex-direction:column; gap:34px; }
+
+.cards{ display:grid; grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); gap:20px; }
+.card{
+  background:var(--surface); border:2px solid var(--border); border-radius:16px 4px 16px 4px/4px 16px 4px 16px;
+  padding:16px 18px 18px 18px;
+}
+.card:nth-child(3n+1){ transform:rotate(-.3deg); }
+.card:nth-child(3n+2){ transform:rotate(.25deg); }
+.card:nth-child(3n){ transform:rotate(-.15deg); }
+.card h3{ font-family:'Segoe Print','Bradley Hand','Comic Sans MS',cursive; margin:0 0 10px 0; font-size:18px; display:flex; align-items:center; gap:8px;}
+.card .base{ font-size:11.5px; color:var(--muted); margin:-6px 0 10px 0; font-family:'Cascadia Code',monospace;}
+.ep{ display:flex; gap:10px; align-items:baseline; padding:5px 0; border-top:1px dashed var(--border); font-size:12.8px; }
+.ep:first-of-type{ border-top:none; }
+.ep .m{ font-family:'Cascadia Code',monospace; font-weight:700; font-size:10.5px; padding:2px 7px; border-radius:8px; flex:0 0 auto; }
+.ep .p{ font-family:'Cascadia Code',monospace; color:var(--ink); }
+.ep .d{ color:var(--muted); margin-left:auto; text-align:right; font-size:11.8px; flex:0 0 auto; padding-left:8px;}
+.m.get{ background:#a5d8ff; color:#1157a3; }
+.m.post{ background:#b2f2bb; color:#1c6b2e; }
+.m.put{ background:#ffe08a; color:#8a5a00; }
+.m.patch{ background:#eebefa; color:#7a2a92; }
+.m.delete{ background:#ffc9c9; color:#a01e1e; }
+
+footer.note{ margin-top:26px; font-size:12px; color:var(--muted); max-width:80ch; }
+
+.hdr-actions{ display:flex; gap:10px; margin:2px 0 16px 0; }
+.dl-btn{
+  font:inherit; font-size:13px; font-weight:600; cursor:pointer;
+  padding:8px 14px; background:var(--ink); color:var(--bg);
+  border:2px solid var(--ink); border-radius:10px 3px 10px 3px/3px 10px 3px 10px;
+}
+.dl-btn:hover{ opacity:.85; }
+.dl-btn:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+.canvas-toolbar{ display:flex; justify-content:flex-end; margin-bottom:6px; }
+.export-btn{
+  font:inherit; font-size:12px; font-weight:600; cursor:pointer;
+  padding:5px 11px; background:var(--surface); color:var(--muted);
+  border:1.5px solid var(--border); border-radius:8px 3px 8px 3px/3px 8px 3px 8px;
+}
+.export-btn:hover{ color:var(--ink); border-color:var(--accent); }
+.export-btn:disabled{ opacity:.6; cursor:wait; }
+</style>
+
+<header class="top">
+  <h1>Hostel One — Low-Level Design</h1>
+  <p class="sub">Reverse-engineered from <span class="mono">C:\Users\Tejeswar\Downloads\hostelTwo</span> — 3 Spring Boot microservices (lessor / renter / notification), Kafka event backbone, schema-per-service Postgres, shared Redis (cache/auth/rate-limit/idempotency), React SPA frontend, live in production on Render+Neon+Upstash+Aiven. Drawn whiteboard-style — click a tab.</p>
+  <div class="hdr-actions">
+    <button class="dl-btn" id="dl-html">⬇ Download this page (.html)</button>
+  </div>
+  <nav class="tabs" id="tabs"></nav>
+</header>
+<main id="main"></main>
+
+<script>
+const svgNS = "http://www.w3.org/2000/svg";
+
+/* ---------- deterministic hand-drawn primitives ---------- */
+function mulberry32(seed){
+  let a = seed >>> 0;
+  return function(){
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+function hashStr(s){ let h=0; for(let i=0;i<s.length;i++){ h=(h*31 + s.charCodeAt(i))|0; } return (Math.abs(h)%100000)+1; }
+function jitter(rand,amt){ return (rand()-0.5)*amt; }
+
+function roughRectPath(x,y,w,h,rand,amt){
+  function seg(x1,y1,x2,y2){
+    const mx=(x1+x2)/2+jitter(rand,amt), my=(y1+y2)/2+jitter(rand,amt);
+    return ` L ${mx.toFixed(1)} ${my.toFixed(1)} L ${(x2+jitter(rand,amt*.6)).toFixed(1)} ${(y2+jitter(rand,amt*.6)).toFixed(1)}`;
+  }
+  let d = `M ${(x+jitter(rand,amt)).toFixed(1)} ${(y+jitter(rand,amt)).toFixed(1)}`;
+  d += seg(x,y,x+w,y);
+  d += seg(x+w,y,x+w,y+h);
+  d += seg(x+w,y+h,x,y+h);
+  d += seg(x,y+h,x,y);
+  return d;
+}
+function roughLinePath(x1,y1,x2,y2,rand,amt){
+  const mx=(x1+x2)/2+jitter(rand,amt), my=(y1+y2)/2+jitter(rand,amt);
+  return `M ${(x1+jitter(rand,amt*.5)).toFixed(1)} ${(y1+jitter(rand,amt*.5)).toFixed(1)} Q ${mx.toFixed(1)} ${my.toFixed(1)} ${(x2+jitter(rand,amt*.5)).toFixed(1)} ${(y2+jitter(rand,amt*.5)).toFixed(1)}`;
+}
+function drawRoughRect(svg,x,y,w,h,{stroke='#1e1e1e',fill='#e9ecef',seed=1,strokeWidth=1.6}={}){
+  const fp=document.createElementNS(svgNS,'path');
+  fp.setAttribute('d', roughRectPath(x,y,w,h,mulberry32(seed+1),1.4));
+  fp.setAttribute('fill',fill); fp.setAttribute('fill-opacity','0.55'); fp.setAttribute('stroke','none');
+  svg.appendChild(fp);
+  for(let i=0;i<2;i++){
+    const p=document.createElementNS(svgNS,'path');
+    p.setAttribute('d', roughRectPath(x,y,w,h,mulberry32(seed+11+i*7),2.3));
+    p.setAttribute('fill','none'); p.setAttribute('stroke',stroke); p.setAttribute('stroke-width',strokeWidth);
+    p.setAttribute('stroke-linecap','round'); p.setAttribute('stroke-linejoin','round');
+    svg.appendChild(p);
+  }
+}
+function drawRoughLine(svg,x1,y1,x2,y2,{stroke='#1e1e1e',seed=1,strokeWidth=1.6,dashed=false}={}){
+  for(let i=0;i<2;i++){
+    const p=document.createElementNS(svgNS,'path');
+    p.setAttribute('d', roughLinePath(x1,y1,x2,y2,mulberry32(seed+i*5),1.8));
+    p.setAttribute('fill','none'); p.setAttribute('stroke',stroke); p.setAttribute('stroke-width',strokeWidth);
+    p.setAttribute('stroke-linecap','round');
+    if(dashed) p.setAttribute('stroke-dasharray','7 6');
+    svg.appendChild(p);
+  }
+}
+function drawArrowHead(svg,x,y,angle,{stroke='#1e1e1e',seed=1,size=9}={}){
+  const a1=angle+Math.PI*0.82, a2=angle-Math.PI*0.82;
+  drawRoughLine(svg,x,y,x+Math.cos(a1)*size,y+Math.sin(a1)*size,{stroke,seed:seed+1,strokeWidth:1.6});
+  drawRoughLine(svg,x,y,x+Math.cos(a2)*size,y+Math.sin(a2)*size,{stroke,seed:seed+2,strokeWidth:1.6});
+}
+function rectEdgePoint(box,tx,ty){
+  const cx=box.x+box.w/2, cy=box.y+box.h/2, dx=tx-cx, dy=ty-cy;
+  if(dx===0 && dy===0) return [cx,cy];
+  const hw=box.w/2, hh=box.h/2;
+  const scale=Math.min(hw/Math.abs(dx||1e-6), hh/Math.abs(dy||1e-6));
+  return [cx+dx*scale, cy+dy*scale];
+}
+function textEl(x,y,str,{cls='hand-text',size=14,weight=400,anchor='start',fill}={}){
+  const t=document.createElementNS(svgNS,'text');
+  t.setAttribute('x',x); t.setAttribute('y',y); t.setAttribute('class',cls);
+  t.setAttribute('font-size',size); t.setAttribute('font-weight',weight); t.setAttribute('text-anchor',anchor);
+  if(fill) t.setAttribute('fill',fill);
+  t.textContent=str; return t;
+}
+function labelBg(svg,cx,cy,str,size){
+  const w = str.length*size*0.62+10, h=size+8;
+  const r=document.createElementNS(svgNS,'rect');
+  r.setAttribute('x',cx-w/2); r.setAttribute('y',cy-h/2); r.setAttribute('width',w); r.setAttribute('height',h);
+  r.setAttribute('class','lbl-bg'); r.setAttribute('rx',4);
+  svg.appendChild(r);
+}
+function connect(svg,a,b,{label,stroke='#1e1e1e',seed,dashed=false,bidir=false}={}){
+  seed = seed || hashStr((label||'')+a.x+b.x);
+  const [x1,y1]=rectEdgePoint(a,b.x+b.w/2,b.y+b.h/2);
+  const [x2,y2]=rectEdgePoint(b,a.x+a.w/2,a.y+a.h/2);
+  drawRoughLine(svg,x1,y1,x2,y2,{stroke,seed,dashed,strokeWidth:1.7});
+  const ang=Math.atan2(y2-y1,x2-x1);
+  drawArrowHead(svg,x2,y2,ang,{stroke,seed:seed+3});
+  if(bidir) drawArrowHead(svg,x1,y1,ang+Math.PI,{stroke,seed:seed+6});
+  if(label){
+    const mx=(x1+x2)/2, my=(y1+y2)/2;
+    labelBg(svg,mx,my,label,11);
+    svg.appendChild(textEl(mx,my+4,label,{cls:'mono-text',size:11,anchor:'middle',fill:stroke}));
+  }
+}
+function createSVG(w,h){
+  const svg=document.createElementNS(svgNS,'svg');
+  svg.setAttribute('viewBox',`0 0 ${w} ${h}`);
+  svg.setAttribute('width',w); svg.setAttribute('height',h);
+  return svg;
+}
+
+/* ---------- download / export ---------- */
+function downloadBlob(blob, filename){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 4000);
+}
+function downloadPage(){
+  const clone = document.documentElement.cloneNode(true);
+  const html = '<!doctype html>\n<html>' + clone.innerHTML + '</html>';
+  downloadBlob(new Blob([html], {type:'text/html'}), 'hostel-one-lld.html');
+}
+function exportSvgPng(svg, filename, btn){
+  const w = svg.viewBox.baseVal.width, h = svg.viewBox.baseVal.height;
+  const clone = svg.cloneNode(true);
+  clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  const svgStr = new XMLSerializer().serializeToString(clone);
+  const svgUrl = URL.createObjectURL(new Blob([svgStr], {type:'image/svg+xml;charset=utf-8'}));
+  const img = new Image();
+  const prevLabel = btn ? btn.textContent : null;
+  if(btn){ btn.disabled = true; btn.textContent = '…'; }
+  img.onload = () => {
+    const scale = 2;
+    const canvas = document.createElement('canvas');
+    canvas.width = w*scale; canvas.height = h*scale;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#fffdfa';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.scale(scale,scale);
+    ctx.drawImage(img,0,0,w,h);
+    URL.revokeObjectURL(svgUrl);
+    canvas.toBlob(blob => {
+      downloadBlob(blob, filename);
+      if(btn){ btn.disabled = false; btn.textContent = prevLabel; }
+    }, 'image/png');
+  };
+  img.onerror = () => { if(btn){ btn.disabled = false; btn.textContent = prevLabel; } };
+  img.src = svgUrl;
+}
+function wrapCanvas(svg, filename){
+  const container = el('div');
+  const bar = el('div',{class:'canvas-toolbar'});
+  const btn = el('button',{class:'export-btn',html:'⬇ PNG'});
+  btn.addEventListener('click', ()=> exportSvgPng(svg, filename, btn));
+  bar.appendChild(btn);
+  const cw = el('div',{class:'canvas-wrap'});
+  cw.appendChild(svg);
+  container.appendChild(bar);
+  container.appendChild(cw);
+  return container;
+}
+
+/* palette */
+const COL = {
+  blue:{stroke:'#1971c2', fill:'#a5d8ff'},
+  green:{stroke:'#2f9e44', fill:'#b2f2bb'},
+  orange:{stroke:'#e8590c', fill:'#ffd8a8'},
+  red:{stroke:'#e03131', fill:'#ffc9c9'},
+  violet:{stroke:'#9c36b6', fill:'#eebefa'},
+  yellow:{stroke:'#f08c00', fill:'#ffec99'},
+  gray:{stroke:'#495057', fill:'#e9ecef'},
+};
+
+/* ---------- entity box (ER table) ---------- */
+function boxHeight(fields){ return 32 + fields.length*18 + 10; }
+function fieldLine(f){
+  const [n,t,fl=''] = f;
+  let prefix = fl.includes('P') ? '🔑 ' : fl.includes('F') ? '↳ ' : '· ';
+  let suffix = '';
+  if(fl.includes('U')) suffix += '  U';
+  if(fl.includes('E')) suffix += ' 🔒';
+  return `${prefix}${n} : ${t}${suffix}`;
+}
+function drawTable(svg, spec){
+  const h = boxHeight(spec.fields);
+  spec.h = h;
+  const seed = hashStr(spec.name);
+  drawRoughRect(svg, spec.x, spec.y, spec.w, h, {stroke:spec.color.stroke, fill:spec.color.fill, seed});
+  drawRoughLine(svg, spec.x+5, spec.y+30, spec.x+spec.w-5, spec.y+30, {stroke:spec.color.stroke, seed:seed+80, strokeWidth:1.3});
+  svg.appendChild(textEl(spec.x+spec.w/2, spec.y+20, spec.name, {cls:'hand-text', size:14.5, weight:700, anchor:'middle'}));
+  spec.fields.forEach((f,i)=>{
+    const y = spec.y+30+10+i*18+9;
+    svg.appendChild(textEl(spec.x+9, y, fieldLine(f), {cls:'mono-text', size:10.3}));
+  });
+  if(spec.note){
+    svg.appendChild(textEl(spec.x+spec.w/2, spec.y+h+13, spec.note, {cls:'hand-text', size:10.5, anchor:'middle', fill:'#868e96'}));
+  }
+}
+function layoutColumns(columns, originX, originY, colWidth, gapX, gapY){
+  let maxBottom = originY;
+  columns.forEach((col,ci)=>{
+    let y = originY;
+    const x = originX + ci*(colWidth+gapX);
+    col.forEach(spec=>{
+      spec.x=x; spec.y=y; spec.w=colWidth;
+      y += boxHeight(spec.fields) + gapY + (spec.note?16:0);
+    });
+    maxBottom = Math.max(maxBottom, y);
+  });
+  return maxBottom;
+}
+function byName(columns){ const m={}; columns.flat().forEach(s=>m[s.name]=s); return m; }
+
+/* ---------- swimlane sequence ---------- */
+function renderSwimlane(width, lanes, steps, laneH){
+  laneH = laneH||70;
+  const h = 90 + steps.length*laneH + 30;
+  const svg = createSVG(width,h);
+  const laneGap = width/lanes.length;
+  const laneX = {};
+  lanes.forEach((l,i)=>{ laneX[l.key]= i*laneGap + laneGap/2; });
+  lanes.forEach(l=>{
+    const bx = laneX[l.key]-95;
+    drawRoughRect(svg,bx,16,190,52,{stroke:l.color.stroke, fill:l.color.fill, seed:hashStr(l.key)});
+    svg.appendChild(textEl(laneX[l.key],48,l.label,{cls:'hand-text',size:13.5,weight:700,anchor:'middle'}));
+    drawRoughLine(svg,laneX[l.key],68,laneX[l.key],h-16,{stroke:'#adb5bd',seed:hashStr(l.key+'ln'),strokeWidth:1,dashed:true});
+  });
+  steps.forEach((s,i)=>{
+    const y = 100 + i*laneH;
+    svg.appendChild(textEl(14,y-14,`${i+1}`,{cls:'hand-text',size:12,weight:700,fill:'#868e96'}));
+    if(s.note) svg.appendChild(textEl(30,y-14,s.note,{cls:'mono-text',size:10,fill:'#868e96'}));
+    const color = s.color || '#1e1e1e';
+    const x1=laneX[s.from], x2=laneX[s.to];
+    drawRoughLine(svg,x1,y,x2,y,{stroke:color,seed:hashStr('step'+i+s.label),strokeWidth:1.8});
+    drawArrowHead(svg,x2,y,x2>x1?0:Math.PI,{stroke:color,seed:hashStr('arr'+i+s.label)});
+    const mx=(x1+x2)/2;
+    labelBg(svg,mx,y-9,s.label,11.5);
+    svg.appendChild(textEl(mx,y-5,s.label,{cls:'hand-text',size:11.5,anchor:'middle',fill:color}));
+  });
+  return svg;
+}
+
+/* =========================================================
+   TAB DATA + RENDERERS
+   ========================================================= */
+const tabs = [
+  {key:'arch', label:'\u{1F5FA}️ Architecture'},
+  {key:'db-lessor', label:'\u{1F5C4}️ DB · lessor'},
+  {key:'db-other', label:'\u{1F5C4}️ DB · renter & notification'},
+  {key:'events', label:'⚡ Kafka Events'},
+  {key:'redis', label:'\u{1F9E9} Redis'},
+  {key:'auth', label:'\u{1F510} Auth (JWT)'},
+  {key:'deploy', label:'\u{1F680} Deployment'},
+  {key:'api', label:'\u{1F4E1} API Reference'},
+];
+
+function el(tag, props={}, kids=[]){
+  const e=document.createElement(tag);
+  Object.entries(props).forEach(([k,v])=>{
+    if(k==='class') e.className=v; else if(k==='html') e.innerHTML=v; else e.setAttribute(k,v);
+  });
+  kids.forEach(k=>e.appendChild(k));
+  return e;
+}
+function legend(items){
+  const l = el('div',{class:'legend'});
+  items.forEach(it=>{ l.appendChild(el('span',{html:`<span class="key">${it.k}</span><b>${it.b}</b> ${it.d}`})); });
+  return l;
+}
+
+/* ---- 1. ARCHITECTURE ---- */
+function panelArchitecture(){
+  const wrap = el('div');
+  wrap.appendChild(el('p',{class:'blurb',html:'One React SPA talking directly to three independently-deployable Spring Boot services (no API gateway). Each service owns a private Postgres <i>schema</i> inside one shared database — no cross-schema foreign keys. Cross-service consistency runs over Kafka (event-carried state transfer); the only synchronous service-to-service call is renter&#8594;lessor for public hostel discovery. One shared Redis instance backs caching, auth revocation, rate limiting, Kafka-consumer dedup, and payment idempotency (see the Redis tab for detail).'}));
+  const svg = createSVG(1500,1010);
+
+  const B = {
+    spa:   {x:560,y:24,w:340,h:104},
+    lessor:{x:70, y:250,w:300,h:148},
+    renter:{x:600,y:250,w:300,h:148},
+    notif: {x:1130,y:250,w:300,h:148},
+    kafka: {x:70, y:520,w:800,h:230},
+    redis: {x:900,y:520,w:600,h:230},
+    pg:    {x:70, y:810,w:1430,h:170},
+  };
+  const inner = {
+    pgL:{x:110,y:842,w:430,h:108},
+    pgR:{x:570,y:842,w:430,h:108},
+    pgN:{x:1030,y:842,w:430,h:108},
+  };
+
+  drawRoughRect(svg,B.spa.x,B.spa.y,B.spa.w,B.spa.h,{...COL.violet,seed:hashStr('spa')});
+  svg.appendChild(textEl(B.spa.x+B.spa.w/2,B.spa.y+30,'React 19 + Vite SPA',{cls:'hand-text',size:17,weight:700,anchor:'middle'}));
+  ['Two axios clients (lessor / renter session)','JWT in localStorage · react-query · react-router v7'].forEach((t,i)=>
+    svg.appendChild(textEl(B.spa.x+B.spa.w/2,B.spa.y+54+i*18,t,{cls:'mono-text',size:10.8,anchor:'middle',fill:'#5f3dc4'})));
+
+  function svc(key,title,port,lines,color){
+    const b=B[key];
+    drawRoughRect(svg,b.x,b.y,b.w,b.h,{...color,seed:hashStr(key)});
+    svg.appendChild(textEl(b.x+b.w/2,b.y+26,title,{cls:'hand-text',size:15.5,weight:700,anchor:'middle'}));
+    svg.appendChild(textEl(b.x+b.w/2,b.y+44,port,{cls:'mono-text',size:11,anchor:'middle',fill:color.stroke}));
+    lines.forEach((t,i)=> svg.appendChild(textEl(b.x+12,b.y+66+i*17,'• '+t,{cls:'mono-text',size:10.2})));
+  }
+  svc('lessor','Lessor Service','spring-boot :8081',['owns Hostel/Floor/Room/Bed','Invoice/Payment, Booking(auth.)','JWT issuer + AES-GCM crypto','Redis: cache, denylist, ratelimit, idempotency'],COL.blue);
+  svc('renter','Renter Service','spring-boot :8082',['owns Renter users','Booking/Complaint (read-model)','sync REST call → lessor:8081','Redis: cache, denylist, ratelimit'],COL.green);
+  svc('notif','Notification Service','spring-boot :8083',['single Notification entity','pure Kafka consumer (sink)','GET / PATCH read-status API','Redis: denylist check, dedup guard'],COL.orange);
+
+  drawRoughRect(svg,B.kafka.x,B.kafka.y,B.kafka.w,B.kafka.h,{...COL.red,seed:hashStr('kafka')});
+  svg.appendChild(textEl(B.kafka.x+B.kafka.w/2,B.kafka.y+28,'Apache Kafka (KRaft, single broker)',{cls:'hand-text',size:16,weight:700,anchor:'middle'}));
+  const topics = ['booking-requests','booking-decisions','complaint-requests','complaint-decisions','payment-events','rent-reminder-events'];
+  topics.forEach((t,i)=>{
+    const col=i%2, row=Math.floor(i/2);
+    const tx=B.kafka.x+40+col*400, ty=B.kafka.y+60+row*50;
+    drawRoughRect(svg,tx,ty,360,36,{stroke:'#c92a2a',fill:'#fff5f5',seed:hashStr(t)});
+    svg.appendChild(textEl(tx+180,ty+23,t,{cls:'mono-text',size:12,anchor:'middle',fill:'#c92a2a'}));
+  });
+
+  drawRoughRect(svg,B.redis.x,B.redis.y,B.redis.w,B.redis.h,{stroke:'#e8590c',fill:'#fff4e6',seed:hashStr('redis')});
+  svg.appendChild(textEl(B.redis.x+B.redis.w/2,B.redis.y+28,'Redis — shared instance, key-prefix per concern',{cls:'hand-text',size:15,weight:700,anchor:'middle'}));
+  const redisKeys = [
+    'cache::* — dashboardAggregates/publicHostelListing/nearbyHostels · 30s',
+    'authdenylist:{jti} — revoked access tokens · shared across all 3 services',
+    '{svc}:ratelimit:{bucket}:{ip} — Lua INCR+EXPIRE fixed window',
+    'kafka:processed:{group}:{topic}:{p}:{offset} — consumer dedup · 24h',
+    'lessor:idempotency:payment:{key} — SETNX lock + cached response · 24h',
+  ];
+  redisKeys.forEach((t,i)=>{
+    const ty=B.redis.y+50+i*36;
+    drawRoughRect(svg,B.redis.x+20,ty,B.redis.w-40,30,{stroke:'#e8590c',fill:'#ffe8cc',seed:hashStr(t)});
+    svg.appendChild(textEl(B.redis.x+30,ty+20,t,{cls:'mono-text',size:9.6,fill:'#e8590c'}));
+  });
+
+  drawRoughRect(svg,B.pg.x,B.pg.y,B.pg.w,B.pg.h,{...COL.gray,seed:hashStr('pg')});
+  svg.appendChild(textEl(B.pg.x+18,B.pg.y+24,'PostgreSQL 16 — one database "hostel_platform", 3 isolated schemas (Flyway-managed)',{cls:'hand-text',size:14.5,weight:700,anchor:'start'}));
+  function schemaBox(k,title,color){
+    const b=inner[k];
+    drawRoughRect(svg,b.x,b.y,b.w,b.h,{...color,seed:hashStr(k)});
+    svg.appendChild(textEl(b.x+b.w/2,b.y+24,title,{cls:'mono-text',size:12.5,weight:700,anchor:'middle',fill:color.stroke}));
+  }
+  schemaBox('pgL','schema: lessor  (16 tables)',COL.blue);
+  schemaBox('pgR','schema: renter  (5 tables)',COL.green);
+  schemaBox('pgN','schema: notification  (1 table)',COL.orange);
+
+  connect(svg,B.spa,B.lessor,{label:'REST + JWT',stroke:COL.blue.stroke,seed:1});
+  connect(svg,B.spa,B.renter,{label:'REST + JWT',stroke:COL.green.stroke,seed:2});
+  connect(svg,B.spa,B.notif,{label:'REST + JWT',stroke:COL.orange.stroke,seed:3});
+  connect(svg,B.renter,B.lessor,{label:'sync REST · public discovery (30s cache)',stroke:'#2f9e44',seed:4,dashed:true});
+  connect(svg,B.lessor,inner.pgL,{stroke:'#495057',seed:5});
+  connect(svg,B.renter,inner.pgR,{stroke:'#495057',seed:6});
+  connect(svg,B.notif,inner.pgN,{stroke:'#495057',seed:7});
+  connect(svg,B.lessor,B.kafka,{label:'produce+consume',stroke:'#c92a2a',seed:8,bidir:true});
+  connect(svg,B.renter,B.kafka,{label:'produce+consume',stroke:'#c92a2a',seed:9,bidir:true});
+  connect(svg,B.kafka,B.notif,{label:'consume only',stroke:'#c92a2a',seed:10});
+  connect(svg,B.lessor,B.redis,{stroke:'#e8590c',seed:11,bidir:true});
+  connect(svg,B.renter,B.redis,{stroke:'#e8590c',seed:12,bidir:true});
+  connect(svg,B.notif,B.redis,{label:'denylist + dedup only',stroke:'#e8590c',seed:13,bidir:true});
+
+  wrap.appendChild(wrapCanvas(svg,'hostel-one-architecture.png'));
+  wrap.appendChild(legend([
+    {k:'🟦',b:'Lessor',d:'authoritative for hostel structure, billing, booking/complaint decisions'},
+    {k:'🟩',b:'Renter',d:'renter identity + eventually-consistent read models'},
+    {k:'🟧',b:'Notification',d:'pure event sink, in-app notifications only (no email/SMS)'},
+    {k:'🟥',b:'Kafka',d:'6 topics, JSON payloads, fire-and-forget publish (errors logged, not rethrown)'},
+    {k:'🟧',b:'Redis',d:'one instance, 5 concerns namespaced by key prefix — see Redis tab'},
+    {k:'⚫',b:'Postgres',d:'schema-per-service, no cross-schema FKs'},
+  ]));
+  return wrap;
+}
+
+/* ---- 2 & 3. DATABASE ---- */
+const LESSOR_TABLES = {
+  users:[['id','bigint','P'],['fname','varchar'],['lname','varchar'],['email','varchar','U'],['phone_number','varchar','U'],['password','varchar (bcrypt)'],['profile_picture_url','varchar'],['role','enum{LESSOR}'],['tenant_id','bigint'],['active','boolean']],
+  refresh_token:[['id','bigint','P'],['user_id','bigint','F'],['token_hash','varchar','U'],['expires_at','timestamp'],['revoked','boolean'],['created_at','timestamp']],
+  audit_log:[['id','bigint','P'],['actor_id','bigint'],['action','varchar'],['entity_type','varchar'],['entity_id','bigint'],['details','varchar2000'],['created_at','timestamp']],
+  amenity:[['id','bigint','P'],['name','varchar','U']],
+  hostel_amenity:[['id','bigint','P'],['hostel_id','bigint','F'],['amenity_id','bigint','F'],['quantity','int']],
+  floor_amenity:[['id','bigint','P'],['floor_id','bigint','F'],['amenity_id','bigint','F'],['quantity','int']],
+  room_amenity:[['id','bigint','P'],['room_id','bigint','F'],['amenity_id','bigint','F'],['quantity','int']],
+  hostel_address:[['id','bigint','P'],['building_name_or_number','varchar500','E'],['street','varchar500','E'],['area','varchar'],['city','varchar'],['state','varchar'],['pin_code','int']],
+  hostel:[['id','bigint','P'],['tenant_id','bigint','U'],['name','varchar'],['hostel_address_id','bigint','FU'],['contact_phone','varchar'],['contact_email','varchar'],['has_lift','boolean']],
+  floor:[['id','bigint','P'],['hostel_id','bigint','F'],['floor_number','int']],
+  room:[['id','bigint','P'],['hostel_id','bigint','F'],['floor_id','bigint','F'],['room_number','varchar'],['capacity','int (def.1)'],['monthly_rent','double'],['sharing_type','int (def.1)'],['air_conditioned','boolean']],
+  bed:[['id','bigint','P'],['hostel_id','bigint','F'],['floor_id','bigint','F'],['room_id','bigint','F'],['bed_number','varchar'],['status','enum{AVAILABLE,BOOKED,MAINTENANCE}'],['check_in_date','date'],['check_out_date','date'],['next_month_rent_paid','boolean'],['maintenance_reason','varchar'],['version','int (opt.lock)']],
+  invoice:[['id','bigint','P'],['tenant_id','bigint'],['hostel_id','bigint','F'],['bed_id','bigint','F'],['total_amount','double'],['partial_payment','double'],['due_amount','double'],['status','enum{PENDING,PARTIALLY_PAID,PAID}'],['due_date','date'],['created_at','timestamp'],['updated_at','timestamp']],
+  payment:[['id','bigint','P'],['invoice_id','bigint','F'],['amount','double'],['method','enum{UPI,CASH,BANK_TRANSFER,OTHER}'],['transaction_id','varchar500','E'],['notes','varchar'],['payment_date','timestamp']],
+  booking:[['id','bigint','P'],['booking_ref','uuid','U'],['bed_id','bigint','F'],['renter_id','bigint (snapshot)'],['renter_name','varchar'],['renter_email','varchar'],['renter_phone','varchar'],['status','enum{PENDING,APPROVED,REJECTED,CANCELLED}'],['requested_check_in','date'],['requested_check_out','date'],['created_at','timestamp'],['decided_at','timestamp'],['decided_by','bigint','F'],['version','int']],
+  complaint:[['id','bigint','P'],['complaint_ref','uuid','U'],['hostel_id','bigint','F'],['raised_by_id','bigint (snapshot)'],['raised_by_name','varchar'],['raised_by_email','varchar'],['category','varchar'],['description','varchar1000'],['status','enum{OPEN,IN_PROGRESS,RESOLVED,REJECTED}'],['created_at','timestamp'],['updated_at','timestamp']],
+};
+const LESSOR_NOTES = { booking:'partial UNIQUE index: ≤1 PENDING/APPROVED row per bed_id (double-booking guard)' };
+const LESSOR_REL = [
+  ['hostel','hostel_address','1:1'],['floor','hostel','N:1'],['room','hostel','N:1'],['room','floor','N:1'],
+  ['bed','hostel','N:1'],['bed','floor','N:1'],['bed','room','N:1'],
+  ['hostel_amenity','hostel','N:1'],['hostel_amenity','amenity','N:1'],
+  ['floor_amenity','floor','N:1'],['floor_amenity','amenity','N:1'],
+  ['room_amenity','room','N:1'],['room_amenity','amenity','N:1'],
+  ['invoice','hostel','N:1'],['invoice','bed','N:1'],['payment','invoice','N:1'],
+  ['booking','bed','N:1'],['booking','users','decided_by'],['complaint','hostel','N:1'],
+  ['refresh_token','users','N:1'],
+];
+const LESSOR_COLS = [
+  ['users','refresh_token','audit_log'],
+  ['amenity','hostel_amenity','floor_amenity','room_amenity'],
+  ['hostel_address','hostel','floor','room','bed'],
+  ['invoice','payment','booking','complaint'],
+];
+
+function buildTableSpecs(colsNames, tableData, notes, color){
+  return colsNames.map(names => names.map(n => ({name:n, fields:tableData[n], color, note:notes&&notes[n]})));
+}
+
+function panelDbLessor(){
+  const wrap = el('div');
+  wrap.appendChild(el('p',{class:'blurb',html:'<b>lessor</b> schema — 16 tables. This service is authoritative: it owns hostel structure, billing, and the source-of-truth Booking/Complaint rows. All FKs below are real Postgres foreign keys inside this one schema.'}));
+  wrap.appendChild(legend([
+    {k:'🔑',b:'PK',d:'primary key'},{k:'↳',b:'FK',d:'foreign key (within schema)'},
+    {k:'U',b:'unique',d:'unique constraint'},{k:'🔒',b:'encrypted',d:'AES-256-GCM column (EncryptedStringConverter)'},
+  ]));
+  const cols = buildTableSpecs(LESSOR_COLS, LESSOR_TABLES, LESSOR_NOTES, COL.blue);
+  const bottom = layoutColumns(cols, 40, 40, 320, 55, 42);
+  const width = 40 + LESSOR_COLS.length*(320+55) - 55 + 40;
+  const svg = createSVG(width, bottom+30);
+  cols.flat().forEach(s=>drawTable(svg,s));
+  const map = byName(cols);
+  LESSOR_REL.forEach(([a,b,label])=> connect(svg, map[a], map[b], {label, stroke:'#1971c2', seed:hashStr(a+b)}));
+  wrap.appendChild(wrapCanvas(svg,'hostel-one-db-lessor.png'));
+  return wrap;
+}
+
+const RENTER_TABLES = {
+  users:[['id','bigint','P'],['fname','varchar'],['lname','varchar'],['email','varchar','U'],['phone_number','varchar','U'],['password','varchar (bcrypt)'],['profile_picture_url','varchar'],['role','enum{RENTER}'],['tenant_id','bigint'],['active','boolean']],
+  refresh_token:[['id','bigint','P'],['user_id','bigint','F'],['token_hash','varchar','U'],['expires_at','timestamp'],['revoked','boolean'],['created_at','timestamp']],
+  audit_log:[['id','bigint','P'],['actor_id','bigint'],['action','varchar'],['entity_type','varchar'],['entity_id','bigint'],['details','varchar2000'],['created_at','timestamp']],
+  booking:[['id','bigint','P'],['booking_ref','uuid','U'],['bed_id','bigint (snapshot)'],['bed_number','varchar (snapshot)'],['room_number','varchar (snapshot)'],['hostel_id','bigint (snapshot)'],['hostel_name','varchar (snapshot)'],['renter_id','bigint','F'],['status','enum{PENDING,APPROVED,REJECTED,CANCELLED}'],['requested_check_in','date'],['requested_check_out','date'],['created_at','timestamp'],['decided_at','timestamp']],
+  complaint:[['id','bigint','P'],['complaint_ref','uuid','U'],['hostel_id','bigint (snapshot)'],['hostel_name','varchar (snapshot)'],['raised_by','bigint','F'],['category','varchar'],['description','varchar1000'],['status','enum{OPEN,IN_PROGRESS,RESOLVED,REJECTED}'],['created_at','timestamp'],['updated_at','timestamp']],
+};
+const RENTER_NOTES = { booking:'read-model — synced from lessor via booking-decisions topic', complaint:'read-model — synced from lessor via complaint-decisions topic' };
+const RENTER_REL = [['booking','users','renter_id'],['complaint','users','raised_by'],['refresh_token','users','N:1']];
+const RENTER_COLS = [ ['users','refresh_token','audit_log'], ['booking','complaint'] ];
+
+const NOTIF_TABLE = { notification:[['id','bigint','P'],['recipient_user_id','bigint (cross-service, no FK)'],['type','enum{BOOKING_REQUESTED,BOOKING_APPROVED,BOOKING_REJECTED,RENT_DUE_REMINDER,PAYMENT_RECEIVED,COMPLAINT_UPDATED,MAINTENANCE_UPDATE}'],['title','varchar'],['body','varchar1000'],['created_at','timestamp'],['read_at','timestamp (nullable)']] };
+
+function panelDbOther(){
+  const wrap = el('div');
+  wrap.appendChild(el('p',{class:'blurb',html:'<b>renter</b> schema (5 tables, own copy of <span class="mono">users</span> for RENTER accounts; Booking/Complaint are <i>eventually-consistent read-models</i>, never written to directly by lessor) and <b>notification</b> schema (1 table, pure event sink). No cross-schema foreign keys anywhere — the dashed notes mark logical links resolved via Kafka / JWT.'}));
+  const stack = el('section',{class:'stack'});
+
+  const cols = buildTableSpecs(RENTER_COLS, RENTER_TABLES, RENTER_NOTES, COL.green);
+  const bottom = layoutColumns(cols, 40, 50, 320, 55, 42);
+  const w1 = 40 + RENTER_COLS.length*(320+55) - 55 + 40;
+  const svg1 = createSVG(w1, bottom+20);
+  svg1.appendChild(textEl(20,26,'schema: renter',{cls:'hand-text',size:17,weight:700}));
+  cols.flat().forEach(s=>drawTable(svg1,s));
+  const map1 = byName(cols);
+  RENTER_REL.forEach(([a,b,label])=> connect(svg1, map1[a], map1[b], {label, stroke:'#2f9e44', seed:hashStr(a+b)}));
+  stack.appendChild(wrapCanvas(svg1,'hostel-one-db-renter.png'));
+
+  const notifSpec = {name:'notification', fields:NOTIF_TABLE.notification, color:COL.orange, x:40, y:50, w:640};
+  const h2 = boxHeight(notifSpec.fields);
+  const svg2 = createSVG(720, h2+130);
+  svg2.appendChild(textEl(20,26,'schema: notification',{cls:'hand-text',size:17,weight:700}));
+  drawTable(svg2, notifSpec);
+  svg2.appendChild(textEl(40,notifSpec.y+h2+34,'• recipient_user_id holds a lessor-service OR renter-service user id — resolved purely by JWT subject match at read time, indexed on (recipient_user_id, created_at DESC)',{cls:'mono-text',size:11,fill:'#868e96'}));
+  svg2.appendChild(textEl(40,notifSpec.y+h2+54,'• written only by 4 Kafka listeners (see Events tab) — never has an owning write API',{cls:'mono-text',size:11,fill:'#868e96'}));
+  stack.appendChild(wrapCanvas(svg2,'hostel-one-db-notification.png'));
+
+  wrap.appendChild(stack);
+  return wrap;
+}
+
+/* ---- 4. EVENTS ---- */
+function panelEvents(){
+  const wrap = el('div');
+  wrap.appendChild(el('p',{class:'blurb',html:'All 6 topics, plain JSON (no schema registry) deserialized independently by each consumer into its own local record. Every publish is <b>fire-and-forget</b>: failures are caught + logged, never rethrown, so a Kafka outage cannot roll back the originating DB transaction. Every listener below is now also guarded against redelivery: before running its handler logic, each checks Redis for <span class="mono">kafka:processed:{groupId}:{topic}:{partition}:{offset}</span> (see Redis tab) — keyed on the message\'s own physical position, not business fields, since Kafka is at-least-once (a consumer restart/rebalance can redeliver a message already applied) and business fields like a bookingRef can legitimately repeat across genuinely distinct events.'}));
+  const lanes = [
+    {key:'renter', label:'Renter Service', color:COL.green},
+    {key:'kafka', label:'Kafka topic', color:COL.red},
+    {key:'lessor', label:'Lessor Service', color:COL.blue},
+    {key:'notif', label:'Notification Svc', color:COL.orange},
+  ];
+  const flows = [
+    {title:'1 · Booking request → decision  (topics: booking-requests, booking-decisions)', steps:[
+      {from:'renter',to:'renter',note:'POST /api/renter/bookings',label:'insert local Booking(PENDING)'},
+      {from:'renter',to:'kafka',note:'EventPublisher.publishBookingRequested',label:'BookingRequestedEvent'},
+      {from:'kafka',to:'lessor',note:'BookingRequestListener',label:'consume booking-requests'},
+      {from:'lessor',to:'lessor',note:'locks bed row (SELECT..FOR UPDATE)',label:'validate + insert Booking(PENDING)'},
+      {from:'lessor',to:'kafka',note:'publishBookingDecision(REQUESTED)',label:'BookingDecisionEvent → lessorUserId'},
+      {from:'kafka',to:'notif',note:'BookingDecisionListener',label:'notify lessor: "New booking request"'},
+      {from:'lessor',to:'lessor',note:'PATCH .../{id}/approve|reject',label:'BookingService.approve/reject'},
+      {from:'lessor',to:'kafka',note:'publishBookingDecision(APPROVED|REJECTED)',label:'BookingDecisionEvent → renterId'},
+      {from:'kafka',to:'renter',note:'BookingDecisionListener',label:'update local read-model status'},
+      {from:'kafka',to:'notif',note:'BookingDecisionListener',label:'notify renter: approved / rejected'},
+    ]},
+    {title:'2 · Complaint request → decision  (topics: complaint-requests, complaint-decisions)', steps:[
+      {from:'renter',to:'kafka',note:'POST /api/renter/complaints',label:'ComplaintRequestedEvent'},
+      {from:'kafka',to:'lessor',note:'ComplaintRequestListener',label:'insert Complaint(OPEN)'},
+      {from:'lessor',to:'kafka',note:'PATCH .../{id}/status → publishComplaintDecision',label:'ComplaintDecisionEvent'},
+      {from:'kafka',to:'renter',note:'ComplaintDecisionListener',label:'update local read-model status'},
+      {from:'kafka',to:'notif',note:'ComplaintDecisionListener',label:'notify raiser: COMPLAINT_UPDATED'},
+    ]},
+    {title:'3 · Payment received  (topic: payment-events)', steps:[
+      {from:'lessor',to:'lessor',note:'POST /api/lessor/payments',label:'PaymentService.recordPayment'},
+      {from:'lessor',to:'kafka',note:'publishPaymentReceived',label:'PaymentReceivedEvent'},
+      {from:'kafka',to:'notif',note:'PaymentEventListener',label:'notify renter: PAYMENT_RECEIVED'},
+    ]},
+    {title:'4 · Rent due reminder  (topic: rent-reminder-events)', steps:[
+      {from:'lessor',to:'lessor',note:'RentReminderScheduler @Scheduled cron 0 0 8 * * *',label:'find invoices due ≤3 days, all tenants'},
+      {from:'lessor',to:'kafka',note:'publishRentDueReminder',label:'RentDueReminderEvent'},
+      {from:'kafka',to:'notif',note:'RentReminderEventListener',label:'notify renter: RENT_DUE_REMINDER'},
+    ]},
+  ];
+  const stack = el('section',{class:'stack'});
+  flows.forEach((f,i)=>{
+    stack.appendChild(el('h3',{class:'hand',html:f.title,style:'margin:0 0 -6px 4px;font-size:16px;'}));
+    const svg = renderSwimlane(1180, lanes, f.steps);
+    stack.appendChild(wrapCanvas(svg, `hostel-one-event-flow-${i+1}.png`));
+  });
+  wrap.appendChild(stack);
+  return wrap;
+}
+
+/* ---- 4b. REDIS ---- */
+function conceptCard(svg,x,y,w,title,lines,color){
+  const h = 28 + lines.length*20 + 16;
+  drawRoughRect(svg,x,y,w,h,{...color,seed:hashStr(title)});
+  svg.appendChild(textEl(x+w/2,y+22,title,{cls:'hand-text',size:14,weight:700,anchor:'middle'}));
+  lines.forEach((t,i)=> svg.appendChild(textEl(x+14,y+44+i*20,t,{cls:'mono-text',size:10.4})));
+  return h;
+}
+function panelRedis(){
+  const wrap = el('div');
+  wrap.appendChild(el('p',{class:'blurb',html:'One shared Redis instance (not one per service — not worth the operational overhead at this scale), namespaced entirely by key prefix. Five independent concerns live in it; none share a code path. Deployed locally/docker as plain Redis, and in production as Upstash (TLS + password, no code change — Spring Boot autoconfigures the Lettuce connection from <span class="mono">spring.data.redis.password</span>/<span class="mono">ssl.enabled</span>).'}));
+
+  const svg = createSVG(1500,400);
+  const cardW=680, gapX=40, gapY=30, originX=40, originY=20;
+  const cards = [
+    {title:'1 · Shared Cache', color:COL.blue, lines:[
+      'dashboardAggregates::{tenantId}   (lessor)',
+      'publicHostelListing::[city,type,ac]   (lessor)',
+      'nearbyHostels::[city,type,ac]   (renter)',
+      'TTL 30s · @Cacheable + RedisCacheManager',
+      'fixed a latent bug: @EnableCaching was missing before this',
+    ]},
+    {title:'2 · Access-Token Denylist', color:COL.red, lines:[
+      'authdenylist:{jti}',
+      'TTL = remaining access-token life at revoke time',
+      'written by: lessor/renter AuthService.logout()',
+      'read by: JwtAuthenticationFilter in ALL 3 services',
+      'prefix NOT service-scoped — revocation must cross services',
+    ]},
+    {title:'3 · Rate Limiter', color:COL.violet, lines:[
+      '{service}:ratelimit:{bucket}:{ip}',
+      'TTL = window (60s fixed-window counter)',
+      'atomic Lua: INCR then EXPIRE-if-first — no race',
+      'lessor: /auth/** 10 per 60s, /api/public/** 60 per 60s',
+      'renter: /auth/** 10 per 60s',
+    ]},
+    {title:'4 · Kafka Consumer Dedup Guard', color:COL.orange, lines:[
+      'kafka:processed:{groupId}:{topic}:{partition}:{offset}',
+      'TTL 24h · SETNX before handler logic runs',
+      'keyed on physical message identity, not business fields',
+      '(bookingRef etc. can legitimately repeat across real events)',
+      'wraps all 6 Kafka listeners across all 3 services',
+    ]},
+    {title:'5 · Payment Idempotency', color:COL.green, lines:[
+      'lessor:idempotency:payment:{Idempotency-Key header}',
+      'SETNX lock (5min) → cached JSON response (24h)',
+      'retry with the same key replays the cached response',
+      'lock deleted on failure so a genuine retry can proceed',
+      'POST /api/lessor/payments only',
+    ]},
+  ];
+  let maxRowH = [0,0,0];
+  cards.forEach((c,i)=>{
+    const col = i%2, row = Math.floor(i/2);
+    const x = originX + col*(cardW+gapX);
+    const y = originY + row*180;
+    const h = conceptCard(svg,x,y,cardW,c.title,c.lines,c.color);
+    maxRowH[row] = Math.max(maxRowH[row]||0, h);
+  });
+  const totalH = originY + maxRowH.reduce((a,h,i)=> i<3?a+(h?h+gapY:0):a, 0) + 10;
+  svg.setAttribute('viewBox',`0 0 1500 ${Math.max(totalH,380)}`);
+  svg.setAttribute('height',Math.max(totalH,380));
+  wrap.appendChild(wrapCanvas(svg,'hostel-one-redis-overview.png'));
+
+  wrap.appendChild(el('h3',{class:'hand',html:'Rate limiter — atomic Lua script',style:'margin:24px 0 -6px 4px;font-size:16px;'}));
+  const rlLanes = [
+    {key:'client', label:'Client', color:COL.violet},
+    {key:'filter', label:'RateLimitFilter', color:COL.orange},
+    {key:'redis', label:'Redis', color:COL.red},
+  ];
+  const rlSteps = [
+    {from:'client',to:'filter',note:'any /auth/** or /api/public/** request',label:'HTTP request'},
+    {from:'filter',to:'redis',note:'DefaultRedisScript, single round trip',label:'EVAL: INCR key; if ==1 then EXPIRE key window'},
+    {from:'redis',to:'filter',note:'atomic — no race between INCR and EXPIRE',label:'new count'},
+    {from:'filter',to:'client',note:'count > limit',label:'429 + Retry-After header'},
+    {from:'filter',to:'client',note:'count <= limit',label:'pass through to JwtAuthenticationFilter'},
+  ];
+  wrap.appendChild(wrapCanvas(renderSwimlane(1100, rlLanes, rlSteps, 66), 'hostel-one-redis-ratelimit.png'));
+  wrap.appendChild(el('p',{class:'blurb',html:'The two-command version (plain INCR, then EXPIRE only if count==1) has a real race: two concurrent requests can both read count==1 and both set the TTL, or a request can land between the commands with no TTL set at all. The Lua script runs both atomically inside Redis, closing that gap.'}));
+
+  wrap.appendChild(el('h3',{class:'hand',html:'Payment idempotency — first call (happy path)',style:'margin:24px 0 -6px 4px;font-size:16px;'}));
+  const idLanes = [
+    {key:'client', label:'Client', color:COL.violet},
+    {key:'ctrl', label:'PaymentController', color:COL.blue},
+    {key:'redis', label:'Redis', color:COL.red},
+    {key:'svc', label:'PaymentService', color:COL.gray},
+  ];
+  const idSteps = [
+    {from:'client',to:'ctrl',note:'Idempotency-Key: K header',label:'POST /api/lessor/payments'},
+    {from:'ctrl',to:'redis',note:'lock, 5min TTL',label:'SETNX idempotency:payment:K = PENDING'},
+    {from:'redis',to:'ctrl',label:'true — first time seeing K'},
+    {from:'ctrl',to:'svc',label:'recordPayment(...)'},
+    {from:'svc',to:'ctrl',label:'PaymentResponse'},
+    {from:'ctrl',to:'redis',note:'24h TTL',label:'SET same key = JSON(response)'},
+    {from:'ctrl',to:'client',label:'201 Created'},
+  ];
+  wrap.appendChild(wrapCanvas(renderSwimlane(1100, idLanes, idSteps, 66), 'hostel-one-redis-idempotency.png'));
+  wrap.appendChild(el('p',{class:'blurb',html:'Retry with the same key <b>before</b> step 6 completes → SETNX returns false, the stored value is still <span class="mono">PENDING</span> → <span class="mono">409 Conflict</span> ("already being processed"). Retry <b>after</b> step 6 → SETNX returns false, the stored value is the cached JSON → replayed as <span class="mono">201</span> with the original response, payment not recorded twice. If <span class="mono">recordPayment</span> throws, the lock key is deleted so a genuine retry after a real failure isn\'t blocked forever.'}));
+
+  return wrap;
+}
+
+/* ---- 5. AUTH ---- */
+function panelAuth(){
+  const wrap = el('div');
+  wrap.appendChild(el('p',{class:'blurb',html:'Stateless JWT (HS256) with a secret shared across all 3 services — any service can validate a token minted by another, which is how notification-service (which has no login endpoint of its own) authorizes requests.'}));
+  const lanes = [
+    {key:'browser', label:'Browser (SPA)', color:COL.violet},
+    {key:'auth', label:'Auth Controller', color:COL.blue},
+    {key:'db', label:'users / refresh_token', color:COL.gray},
+    {key:'filter', label:'JwtAuthenticationFilter (any service)', color:COL.orange},
+  ];
+  const steps = [
+    {from:'browser',to:'auth',note:'POST /auth/register',label:'{email, password, ...}'},
+    {from:'auth',to:'db',note:'BCryptPasswordEncoder.encode()',label:'insert users row'},
+    {from:'browser',to:'auth',note:'POST /auth/login',label:'{email, password}'},
+    {from:'auth',to:'db',note:'verify bcrypt hash',label:'SELECT users WHERE email'},
+    {from:'auth',to:'auth',note:'JwtService.generateAccessToken',label:'access JWT (jti,sub,email,role,tenant · 30min)'},
+    {from:'auth',to:'db',note:'store hashed opaque token',label:'insert refresh_token (14d TTL)'},
+    {from:'auth',to:'browser',note:'200 OK',label:'{accessToken, refreshToken}'},
+    {from:'browser',to:'filter',note:'every request',label:'Authorization: Bearer <access>'},
+    {from:'filter',to:'filter',note:'shared HS256 secret, any service',label:'verify sig+exp → parse jti'},
+    {from:'filter',to:'filter',note:'redis: EXISTS authdenylist:{jti}',label:'not revoked? → SecurityContext'},
+    {from:'browser',to:'auth',note:'access expired → 401',label:'POST /auth/refresh {refreshToken}'},
+    {from:'auth',to:'db',note:'hash match, !revoked, not expired',label:'SELECT refresh_token'},
+    {from:'auth',to:'browser',note:'200 OK',label:'new accessToken'},
+    {from:'browser',to:'auth',note:'POST /auth/logout, Authorization: Bearer <access>',label:'{refreshToken?}'},
+    {from:'auth',to:'auth',note:'principal.jti() + principal.expiresAt()',label:'TokenDenylistService.revoke(jti, expiresAt)'},
+    {from:'auth',to:'db',note:'if refreshToken present in body',label:'mark that refresh_token revoked too'},
+    {from:'auth',to:'browser',note:'204 No Content',label:'logged out'},
+  ];
+  const seqSvg = renderSwimlane(1180, lanes, steps, 66);
+  wrap.appendChild(wrapCanvas(seqSvg,'hostel-one-auth-flow.png'));
+  wrap.appendChild(el('p',{class:'blurb',style:'margin:12px 0 0 0',html:'Logout is the one place a still-valid (unexpired) JWT can be killed early — the token itself is stateless by design, so <span class="mono">authdenylist:{jti}</span> in Redis (see Redis tab) is the only server-side state that makes revocation possible. The key prefix is shared across all 3 services (not service-scoped) since any of them can validate a token minted by another.'}));
+
+  const svg = createSVG(900,300);
+  const boxes = [
+    {x:20,y:30,w:260,h:220,title:'HEADER',color:COL.red,lines:['alg: HS256','typ: JWT']},
+    {x:320,y:30,w:260,h:220,title:'PAYLOAD (claims)',color:COL.blue,lines:['jti: UUID (for denylist)','sub: userId','email','role: LESSOR | RENTER','tenant: tenantId','iat / exp (30 min TTL)']},
+    {x:620,y:30,w:260,h:220,title:'SIGNATURE',color:COL.green,lines:['HMACSHA256(','  base64(header)+"."+base64(payload),','  app.jwt.secret',')','⚠ same secret in all 3 services']},
+  ];
+  boxes.forEach(b=>{
+    drawRoughRect(svg,b.x,b.y,b.w,b.h,{...b.color,seed:hashStr(b.title)});
+    svg.appendChild(textEl(b.x+b.w/2,b.y+26,b.title,{cls:'hand-text',size:14,weight:700,anchor:'middle'}));
+    b.lines.forEach((t,i)=>svg.appendChild(textEl(b.x+12,b.y+56+i*22,t,{cls:'mono-text',size:11})));
+  });
+  wrap.appendChild(el('h3',{class:'hand',html:'JWT structure',style:'margin:20px 0 -6px 4px;font-size:16px;'}));
+  wrap.appendChild(wrapCanvas(svg,'hostel-one-jwt-structure.png'));
+
+  wrap.appendChild(el('p',{class:'blurb',style:'margin-top:16px',html:'Additional guards: <b>Spring Security</b> method-level <span class="mono">@PreAuthorize("hasRole(...)")</span> on every controller; <b>BCrypt</b> for password storage; <b>AES-256-GCM</b> field encryption (separate key) on <span class="mono">hostel_address.street/building</span> and <span class="mono">payment.transaction_id</span>; AspectJ <span class="mono">@Auditable</span> writes actor/action/entity to <span class="mono">audit_log</span> on annotated service methods (lessor &amp; renter only).'}));
+  return wrap;
+}
+
+/* ---- 5b. DEPLOYMENT ---- */
+function panelDeployment(){
+  const wrap = el('div');
+  wrap.appendChild(el('p',{class:'blurb',html:'Live production deployment, chosen specifically to need <b>zero credit card</b> anywhere: Render (compute, static hosting), Neon (Postgres), Upstash (Redis), Aiven (Kafka) — every one of them has a genuine free tier with no card requirement. A separate, unused-for-now path (<span class="mono">docker-compose.prod.yml</span> + Caddy reverse proxy, auto HTTPS) exists in the repo for a single-VM deploy if a free VM ever becomes available (e.g. student credits) — see the note below the diagram.'}));
+
+  const svg = createSVG(1500,760);
+  const B = {
+    gh:     {x:590,y:20, w:320,h:70},
+    render: {x:80, y:150,w:1340,h:260},
+    static: {x:120,y:192,w:290,h:110},
+    lessor: {x:440,y:192,w:290,h:110},
+    renter: {x:760,y:192,w:290,h:110},
+    notif:  {x:1080,y:192,w:290,h:110},
+    neon:   {x:100,y:470,w:420,h:190},
+    upstash:{x:550,y:470,w:410,h:190},
+    aiven:  {x:990,y:470,w:420,h:190},
+    users:  {x:560,y:700,w:380,h:50},
+  };
+
+  drawRoughRect(svg,B.gh.x,B.gh.y,B.gh.w,B.gh.h,{...COL.gray,seed:hashStr('gh')});
+  svg.appendChild(textEl(B.gh.x+B.gh.w/2,B.gh.y+30,'github.com/tejeswar5/HostelTwo',{cls:'hand-text',size:14,weight:700,anchor:'middle'}));
+  svg.appendChild(textEl(B.gh.x+B.gh.w/2,B.gh.y+50,'public repo · main branch',{cls:'mono-text',size:10.5,anchor:'middle',fill:'#495057'}));
+
+  drawRoughRect(svg,B.render.x,B.render.y,B.render.w,B.render.h,{stroke:'#495057',fill:'#f1f3f5',seed:hashStr('render')});
+  svg.appendChild(textEl(B.render.x+18,B.render.y+24,'Render — 4 services, auto-deploy on push to main',{cls:'hand-text',size:15,weight:700,anchor:'start'}));
+
+  function renderSvc(key,title,note,color){
+    const b=B[key];
+    drawRoughRect(svg,b.x,b.y,b.w,b.h,{...color,seed:hashStr(key)});
+    svg.appendChild(textEl(b.x+b.w/2,b.y+26,title,{cls:'hand-text',size:13.5,weight:700,anchor:'middle'}));
+    note.forEach((t,i)=> svg.appendChild(textEl(b.x+b.w/2,b.y+48+i*17,t,{cls:'mono-text',size:9.8,anchor:'middle',fill:color.stroke})));
+  }
+  renderSvc('static','web-iibc (Static Site)',['npm run build → dist','VITE_*_API_URL baked at build time'],COL.violet);
+  renderSvc('lessor','hosteltwo (Docker)',['lessor-service, free plan','sleeps after 15min idle'],COL.blue);
+  renderSvc('renter','renter-service (Docker)',['free plan','LESSOR_SERVICE_URL → hosteltwo'],COL.green);
+  renderSvc('notif','notify-3wfv (Docker)',['free plan','pure Kafka consumer'],COL.orange);
+
+  function ext(key,title,note,color){
+    const b=B[key];
+    drawRoughRect(svg,b.x,b.y,b.w,b.h,{...color,seed:hashStr(key)});
+    svg.appendChild(textEl(b.x+b.w/2,b.y+26,title,{cls:'hand-text',size:14.5,weight:700,anchor:'middle'}));
+    note.forEach((t,i)=> svg.appendChild(textEl(b.x+12,b.y+50+i*18,t,{cls:'mono-text',size:9.8})));
+  }
+  ext('neon','Neon — Postgres',[
+    '1 db "neondb", 3 schemas (lessor/renter/notif)',
+    'DIRECT host, not pooler (see gotchas below)',
+    'sslmode=require · free, no card, never expires',
+  ],COL.blue);
+  ext('upstash','Upstash — Redis',[
+    'rediss:// (TLS) · password auth',
+    'REDIS_SSL_ENABLED=true on all 3 services',
+    'free: 256MB / 500k commands per month',
+  ],COL.red);
+  ext('aiven','Aiven — Kafka',[
+    'SASL_SSL, SCRAM-SHA-256, avnadmin user',
+    'project CA cert → KAFKA_SSL_TRUSTSTORE_CERTIFICATES',
+    'free plan auto-powers-off after 24h idle',
+  ],COL.orange);
+
+  drawRoughRect(svg,B.users.x,B.users.y,B.users.w,B.users.h,{...COL.gray,seed:hashStr('users')});
+  svg.appendChild(textEl(B.users.x+B.users.w/2,B.users.y+30,'friends — Bangalore · Chennai · USA · anywhere',{cls:'hand-text',size:13.5,weight:700,anchor:'middle'}));
+
+  connect(svg,B.gh,B.render,{label:'git push → auto-deploy',stroke:'#495057',seed:1});
+  connect(svg,B.lessor,B.neon,{stroke:'#1971c2',seed:2});
+  connect(svg,B.renter,B.neon,{stroke:'#2f9e44',seed:3});
+  connect(svg,B.notif,B.neon,{stroke:'#e8590c',seed:4});
+  connect(svg,B.lessor,B.upstash,{stroke:'#1971c2',seed:5});
+  connect(svg,B.renter,B.upstash,{stroke:'#2f9e44',seed:6});
+  connect(svg,B.notif,B.upstash,{stroke:'#e8590c',seed:7});
+  connect(svg,B.lessor,B.aiven,{label:'produce+consume',stroke:'#1971c2',seed:8,bidir:true});
+  connect(svg,B.renter,B.aiven,{label:'produce+consume',stroke:'#2f9e44',seed:9,bidir:true});
+  connect(svg,B.notif,B.aiven,{label:'consume only',stroke:'#e8590c',seed:10});
+  connect(svg,B.static,B.users,{label:'HTTPS',stroke:'#9c36b6',seed:11});
+
+  wrap.appendChild(wrapCanvas(svg,'hostel-one-deployment.png'));
+
+  wrap.appendChild(el('h3',{class:'hand',html:'Alternative path, built but not currently used',style:'margin:20px 0 -6px 4px;font-size:16px;'}));
+  wrap.appendChild(el('p',{class:'blurb',html:'<span class="mono">docker-compose.prod.yml</span> + <span class="mono">deploy/Caddyfile</span> + <span class="mono">web/Dockerfile</span> deploy the whole stack (Postgres/Kafka/Redis/all 3 services/frontend) to a single VM instead — Caddy reverse-proxies <span class="mono">/api/lessor</span>, <span class="mono">/api/renter</span>, <span class="mono">/api/notifications</span> to the right container and serves the built SPA for everything else, with automatic free HTTPS via Let\'s Encrypt. Not used here because every free-tier VM (Oracle Cloud, AWS, GCP) requires a credit card for identity verification even when never billed — this path is ready to go the moment a card-free VM is available.'}));
+
+  wrap.appendChild(el('h3',{class:'hand',html:'Deployment incidents — this session\'s actual debugging log',style:'margin:24px 0 10px 4px;font-size:16px;'}));
+  const incidents = [
+    {title:'🔴 Secrets committed to public repo', cause:'JWT/encryption keys were hardcoded as property defaults, pushed to a public GitHub repo before anyone noticed.', fix:'Rotated both secrets, removed the fallback defaults entirely (required env vars, fail-fast if missing), documented in .env.example.'},
+    {title:'🟠 Hibernate: "missing table [amenity]"', cause:'Flyway migrated the "lessor" schema correctly, but Hibernate\'s connection landed on "public" — Neon\'s proxy doesn\'t reliably honor currentSchema/search_path, on either the pooled or direct endpoint.', fix:'Set hibernate.default_schema explicitly per service — Hibernate then qualifies every query with the schema name directly, independent of search_path.'},
+    {title:'🟠 Kafka: "No matching CERTIFICATE entries in PEM file"', cause:'Aiven\'s CA cert (needed because their Kafka uses a project-specific CA, not a public one) got mangled pasting multi-line PEM into Render\'s env var field.', fix:'Verified the cert was valid with keytool locally, then re-pasted the exact block fresh into Render with no surrounding quotes/whitespace.'},
+    {title:'🟠 CORS: OPTIONS preflight → 403 Forbidden', cause:'CORS_ALLOWED_ORIGINS on the backends still pointed at localhost/placeholder — the frontend\'s real Render URL wasn\'t added until after all 3 backends were already deployed.', fix:'Set CORS_ALLOWED_ORIGINS to the exact frontend origin (no trailing slash) on all 3 backend services once the static site\'s URL was known.'},
+    {title:'🟡 "Request pending forever" on first use', cause:'Not a bug — Render free-tier services sleep after 15 min idle; the first request wakes one up, which alone can take 30-60s+.', fix:'None needed. Confirmed by testing directly with curl: the same request that looked "stuck" returned 200/201 once warm.'},
+    {title:'🟠 Pushed a fix to a branch whose PR had already merged', cause:'Assumed PR #2 was still open (per the established review-before-merge habit) and kept pushing follow-up commits to feat/redis-integration — but it had already been merged, so those commits never reached main, which is what Render deploys from.', fix:'Cherry-picked the missing commit directly onto main once the mismatch was found (with explicit go-ahead, given a live deploy was blocked on it).'},
+  ];
+  const grid = el('div',{class:'cards'});
+  incidents.forEach(inc=>{
+    const card = el('div',{class:'card'});
+    card.appendChild(el('h3',{html:inc.title}));
+    card.appendChild(el('div',{style:'font-size:12.5px;line-height:1.5;color:var(--muted);margin-bottom:6px;',html:`<b style="color:var(--ink)">Cause:</b> ${inc.cause}`}));
+    card.appendChild(el('div',{style:'font-size:12.5px;line-height:1.5;color:var(--muted);',html:`<b style="color:var(--ink)">Fix:</b> ${inc.fix}`}));
+    grid.appendChild(card);
+  });
+  wrap.appendChild(grid);
+
+  return wrap;
+}
+
+/* ---- 6. API ---- */
+const API = {
+  'Lessor Service · :8081':[
+    {base:'/api/lessor/auth', eps:[['POST','/register (public)','Register lessor'],['POST','/login (public)','Login → tokens'],['POST','/refresh (public)','Rotate access token'],['POST','/logout (LESSOR)','Revoke access token + optional refresh token']]},
+    {base:'/api/lessor/bookings (LESSOR)', eps:[['GET','?status','List bookings'],['POST','/{id}/approve','Approve booking'],['POST','/{id}/reject','Reject booking']]},
+    {base:'/api/lessor/complaints (LESSOR)', eps:[['GET','?status','List complaints'],['PATCH','/{id}/status','Update status']]},
+    {base:'/api/lessor/dashboard (LESSOR)', eps:[['GET','','Aggregate stats (cached 30s)']]},
+    {base:'/api/lessor/hostel (LESSOR)', eps:[
+      ['GET','','Get hostel'],['POST','','Create hostel'],['PUT','','Update hostel'],
+      ['GET','/floors','List floors'],['POST','/floors','Add floor'],['DELETE','/floors/{id}','Delete floor'],
+      ['POST','/floors/{id}/amenities','Assign amenity'],
+      ['POST','/rooms','Add room'],['PUT','/rooms/{id}','Update room'],['DELETE','/rooms/{id}','Delete room'],
+      ['POST','/rooms/{id}/amenities','Assign amenity'],
+      ['GET','/beds','Bed board'],['POST','/beds','Add bed'],['DELETE','/beds/{id}','Delete bed'],
+      ['PATCH','/beds/{id}/maintenance','Mark maintenance'],['PATCH','/beds/{id}/available','Mark available'],
+      ['PATCH','/beds/{id}/next-month-rent','Toggle rent-paid flag'],
+      ['POST','/amenities','Assign amenity to hostel'],
+    ]},
+    {base:'/api/lessor (LESSOR)', eps:[
+      ['POST','/invoices','Generate invoice'],['GET','/invoices?bedId','List invoices'],
+      ['POST','/payments','Record payment'],['GET','/payments?invoiceId','List payments'],
+      ['GET','/payments/{id}/receipt','Get receipt'],
+    ]},
+    {base:'/api/lessor/profile (LESSOR)', eps:[['GET','','Get profile'],['PUT','','Update profile']]},
+    {base:'/api/public/hostels (public)', eps:[['GET','?city,sharingType,ac','Browse listings'],['GET','/{id}','Hostel detail']]},
+  ],
+  'Renter Service · :8082':[
+    {base:'/api/renter/auth', eps:[['POST','/register (public)','Register renter'],['POST','/login (public)','Login → tokens'],['POST','/refresh (public)','Rotate access token'],['POST','/logout (RENTER)','Revoke access token + optional refresh token']]},
+    {base:'/api/renter/bookings (RENTER)', eps:[['POST','','Create booking request'],['GET','/mine','List own bookings']]},
+    {base:'/api/renter/complaints (RENTER)', eps:[['POST','','Raise complaint'],['GET','/mine','List own complaints']]},
+    {base:'/api/renter/hostels/{id}/connections (RENTER)', eps:[['POST','','Find known contacts at hostel']]},
+    {base:'/api/renter/hostels (RENTER)', eps:[['GET','?city,sharingType,ac','Discover (proxies lessor)'],['GET','/{id}','Hostel detail (proxies lessor)']]},
+    {base:'/api/renter/profile (RENTER)', eps:[['GET','','Get profile'],['PUT','','Update profile']]},
+  ],
+  'Notification Service · :8083':[
+    {base:'/api/notifications (authenticated, any role)', eps:[['GET','','List my notifications'],['PATCH','/{id}/read','Mark read']]},
+  ],
+};
+function panelApi(){
+  const wrap = el('div');
+  wrap.appendChild(el('p',{class:'blurb',html:'Every backend REST endpoint, grouped by controller. Method colors are just HTTP semantics, not app state.'}));
+  Object.entries(API).forEach(([svcTitle, groups])=>{
+    wrap.appendChild(el('h3',{class:'hand',html:svcTitle,style:'margin:22px 0 10px 2px;font-size:19px;'}));
+    const grid = el('div',{class:'cards'});
+    groups.forEach(g=>{
+      const card = el('div',{class:'card'});
+      card.appendChild(el('h3',{html:g.base.split(' (')[0]}));
+      if(g.base.includes('(')) card.appendChild(el('div',{class:'base',html:g.base.match(/\(([^)]+)\)/)[1]}));
+      g.eps.forEach(([m,p,d])=>{
+        const row = el('div',{class:'ep'});
+        row.appendChild(el('span',{class:'m '+m.toLowerCase(),html:m}));
+        row.appendChild(el('span',{class:'p',html:p||'/'}));
+        row.appendChild(el('span',{class:'d',html:d}));
+        card.appendChild(row);
+      });
+      grid.appendChild(card);
+    });
+    wrap.appendChild(grid);
+  });
+  return wrap;
+}
+
+/* ---------- mount ---------- */
+const renderers = { arch:panelArchitecture, 'db-lessor':panelDbLessor, 'db-other':panelDbOther, events:panelEvents, redis:panelRedis, auth:panelAuth, deploy:panelDeployment, api:panelApi };
+const tabsEl = document.getElementById('tabs');
+const mainEl = document.getElementById('main');
+const built = {};
+
+function showTab(key){
+  tabsEl.querySelectorAll('button').forEach(b=> b.classList.toggle('active', b.dataset.key===key));
+  Object.keys(renderers).forEach(k=>{
+    if(!built[k]){
+      built[k]=el('div',{class:'panel'});
+      built[k].appendChild(renderers[k]());
+      mainEl.appendChild(built[k]);
+    }
+    built[k].classList.toggle('active', k===key);
+  });
+  location.hash = key;
+}
+tabs.forEach(t=>{
+  const b = el('button',{'data-key':t.key, html:t.label});
+  b.addEventListener('click', ()=>showTab(t.key));
+  tabsEl.appendChild(b);
+});
+document.getElementById('dl-html').addEventListener('click', downloadPage);
+showTab((location.hash||'#arch').slice(1) in renderers ? (location.hash||'#arch').slice(1) : 'arch');
+</script>
